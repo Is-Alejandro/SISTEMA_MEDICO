@@ -1,178 +1,370 @@
 import tkinter as tk
+from tkinter import ttk
+from componentes_ui.ui_base_screen import UIBaseScreen
 
 
-class PantallaIMC(tk.Frame):
-    def __init__(self, parent, app):
-        super().__init__(parent, bg="#f8f9fa")   # Fondo suave profesional
-        self.app = app
-
-        # ============================================================
-        # BOTÓN VOLVER
-        # ============================================================
-        btn_volver = tk.Button(
-            self,
-            text="⬅ Volver al menú",
-            font=("Arial", 12, "bold"),
-            bg="white",
-            relief="solid",
-            borderwidth=1,
-            command=lambda: app.mostrar_pantalla("menu")
+class PantallaIMC(UIBaseScreen):
+    def __init__(self, parent, controller):
+        super().__init__(
+            parent,
+            controller,
+            titulo="Cálculo de IMC",
+            subtitulo="Evaluación del estado nutricional"
         )
-        btn_volver.pack(anchor="nw", padx=20, pady=20)
+
+        self.controller = controller
+
+        # ===========================================
+        # CARGAR ICONO PNG
+        # ===========================================
+        try:
+            self.icon_imc = tk.PhotoImage(file="assets/icons/imc.png")
+        except Exception:
+            self.icon_imc = None
+
+        if self.icon_imc:
+            tk.Label(self, image=self.icon_imc, bg="white").pack(pady=(5, 0))
+
+        # Separador visual
+        ttk.Separator(self, orient="horizontal").pack(fill="x", pady=(10, 20))
+
+        # ===========================================
+        # CONTENEDOR
+        # ===========================================
+        container = self.get_card()
+        container.configure(bg="white", padx=40, pady=30)
+
+        cont = tk.Frame(container, bg="white")
+        cont.pack()
 
         # ============================================================
-        # TÍTULO + ICONO
+        # FORMULARIO – IZQUIERDA
         # ============================================================
-        icono = tk.Label(
-            self,
-            text="🍏",
-            font=("Arial", 60),
-            bg="#f8f9fa"
+        form = tk.Frame(cont, bg="white")
+        form.grid(row=0, column=0, padx=(0, 50), sticky="nw")
+
+        def campo(label, row):
+            ttk.Label(form, text=label, font=("Arial", 13), background="white").grid(
+                row=row, column=0, sticky="w", pady=10
+            )
+            entry = ttk.Entry(form, width=14, font=("Arial", 12))
+            entry.grid(row=row, column=1, padx=10)
+            return entry
+
+        self.entry_peso = campo("Peso (kg):", 0)
+        self.entry_est = campo("Estatura (cm):", 1)
+        self.entry_edad = campo("Edad:", 2)
+
+        ttk.Button(form, text="Calcular IMC", style="Calcular.TButton",
+                   command=self.calcular_imc).grid(row=3, column=0, columnspan=2, pady=20)
+
+        ttk.Button(form, text="Limpiar", style="Limpiar.TButton",
+                   command=self.limpiar).grid(row=4, column=0, columnspan=2)
+
+        # ============================================================
+        # CARD RESULTADOS – DERECHA
+        # ============================================================
+        self.card_res = tk.Frame(
+            cont, bg="white", highlightbackground="#D8D8D8", highlightthickness=1,
+            padx=25, pady=20
         )
-        icono.pack(pady=(10, 0))
+        self.card_res.grid(row=0, column=1, sticky="n")
 
-        titulo = tk.Label(
-            self,
-            text="Asistente Nutricional - Cálculo de IMC",
-            font=("Arial", 26, "bold"),
-            bg="#f8f9fa"
-        )
-        titulo.pack(pady=(5, 5))
+        # Barra vertical de color
+        self.barra_color = tk.Frame(self.card_res, width=8, bg="#CCCCCC")
+        self.barra_color.pack(side="left", fill="y", padx=(0, 15))
 
-        subtitulo = tk.Label(
-            self,
-            text="Ingresa tus datos para obtener un análisis nutricional completo",
-            font=("Arial", 14),
-            fg="#555",
-            bg="#f8f9fa"
-        )
-        subtitulo.pack(pady=(0, 25))
+        self.frame_contenido = tk.Frame(self.card_res, bg="white")
+        self.frame_contenido.pack(side="left")
 
-        # ============================================================
-        # CONTENEDOR HORIZONTAL (FORM + RESULTADOS)
-        # ============================================================
-        contenedor = tk.Frame(self, bg="#f8f9fa")
-        contenedor.pack(pady=10)
-
-        # ============================================================
-        # FORMULARIO A LA IZQUIERDA
-        # ============================================================
-        card_form = tk.Frame(
-            contenedor,
-            bg="white",
-            relief="solid",
-            borderwidth=1,
-            padx=30,
-            pady=20
-        )
-        card_form.grid(row=0, column=0, padx=40)
-
-        tk.Label(card_form, text="Peso (kg):", font=("Arial", 14), bg="white").grid(row=0, column=0, pady=10, sticky="e")
-        self.entry_peso = tk.Entry(card_form, font=("Arial", 14), width=10)
-        self.entry_peso.grid(row=0, column=1, padx=10)
-
-        tk.Label(card_form, text="Estatura (cm):", font=("Arial", 14), bg="white").grid(row=1, column=0, pady=10, sticky="e")
-        self.entry_estatura = tk.Entry(card_form, font=("Arial", 14), width=10)
-        self.entry_estatura.grid(row=1, column=1, padx=10)
-
-        tk.Label(card_form, text="Edad:", font=("Arial", 14), bg="white").grid(row=2, column=0, pady=10, sticky="e")
-        self.entry_edad = tk.Entry(card_form, font=("Arial", 14), width=10)
-        self.entry_edad.grid(row=2, column=1, padx=10)
-
-        btn_calcular = tk.Button(
-            card_form,
-            text="Calcular IMC",
+        ttk.Label(
+            self.frame_contenido,
+            text="📊 Resultado del análisis clínico",
             font=("Arial", 16, "bold"),
-            bg="#0d9488",
-            fg="white",
-            padx=20,
-            pady=10,
-            command=self.calcular_imc
-        )
-        btn_calcular.grid(row=3, column=0, columnspan=2, pady=20)
+            background="white"
+        ).pack()
 
-        # ============================================================
-        # RESULTADOS A LA DERECHA
-        # ============================================================
-        card_res = tk.Frame(
-            contenedor,
-            bg="white",
-            relief="solid",
-            borderwidth=1,
-            padx=25,
-            pady=20
-        )
-        card_res.grid(row=0, column=1, padx=40, sticky="n")
-
-        self.lbl_titulo_res = tk.Label(
-            card_res,
-            text="📊 Resultado del análisis",
-            font=("Arial", 18, "bold"),
-            bg="white"
-        )
-        self.lbl_titulo_res.pack()
-
-        self.lbl_resultado = tk.Label(
-            card_res,
+        self.lbl_resultado = ttk.Label(
+            self.frame_contenido,
             text="Ingrese sus datos y presione Calcular IMC.",
-            font=("Arial", 14),
-            bg="white",
-            justify="left"
+            font=("Arial", 13),
+            background="white"
         )
-        self.lbl_resultado.pack(pady=10)
+        self.lbl_resultado.pack(pady=(10, 5))
+
+        self.frame_detalles = tk.Frame(self.frame_contenido, bg="white")
+        self.frame_detalles.pack()
+
+        # Indicador visual horizontal
+        self.frame_barras = tk.Frame(self.frame_contenido, bg="white")
+        self.frame_barras.pack(pady=(15, 0), fill="x")
+
+        # Nota clínica inferior
+        self.lbl_nota = ttk.Label(
+            self,
+            text="📘 El IMC es una referencia clínica general y no reemplaza una evaluación médica completa.",
+            background="white", foreground="#444", font=("Arial", 11),
+            wraplength=850, justify="center"
+        )
+        self.lbl_nota.pack(pady=(25, 10))
 
     # ============================================================
-    # LÓGICA DEL IMC
+    # LIMPIAR
+    # ============================================================
+    def limpiar(self):
+        self.entry_peso.delete(0, tk.END)
+        self.entry_est.delete(0, tk.END)
+        self.entry_edad.delete(0, tk.END)
+
+        self.lbl_resultado.config(text="Ingrese sus datos y presione Calcular IMC.")
+        self.barra_color.config(bg="#CCCCCC")
+
+        for w in self.frame_detalles.winfo_children():
+            w.destroy()
+        for w in self.frame_barras.winfo_children():
+            w.destroy()
+
+    # ============================================================
+    # CÁLCULO COMPLETO IMC + PESO IDEAL + CALORÍAS
     # ============================================================
     def calcular_imc(self):
         try:
             peso = float(self.entry_peso.get())
-            estatura_cm = float(self.entry_estatura.get())
+            est_cm = float(self.entry_est.get())
             edad = int(self.entry_edad.get())
+            est = est_cm / 100
+            if peso <= 0 or est <= 0:
+                raise ValueError
+        except:
+            self.lbl_resultado.config(text="⚠️ Ingrese valores válidos.", foreground="red")
+            return
 
-            if peso <= 0 or estatura_cm <= 0:
-                self.lbl_resultado.config(text="⚠️ Por favor ingresa valores válidos.", fg="red")
-                return
+        # IMC
+        imc = round(peso / (est * est), 2)
 
-            estatura_m = estatura_cm / 100
-            imc = peso / (estatura_m ** 2)
-            imc_redondeado = round(imc, 2)
+        # Peso ideal (rango)
+        peso_min = round(18.5 * est * est, 2)
+        peso_max = round(24.9 * est * est, 2)
 
-            # Clasificación OMS
-            if imc < 18.5:
-                clasificacion = "Bajo peso"
-                texto_clas = "Tu IMC indica un peso por debajo de lo recomendado."
-                recomendacion = "Incluye alimentos energéticos como frutos secos, huevos, avena y consulta con nutrición."
-            elif 18.5 <= imc < 24.9:
-                clasificacion = "Normal"
-                texto_clas = "Te encuentras dentro del rango saludable."
-                recomendacion = "Mantén una dieta equilibrada y actividad física regular."
-            elif 25 <= imc < 29.9:
-                clasificacion = "Sobrepeso"
-                texto_clas = "Tu peso está por encima del rango adecuado."
-                recomendacion = "Disminuye azúcares y grasas, aumenta frutas, verduras y actividad física."
-            elif 30 <= imc < 34.9:
-                clasificacion = "Obesidad I"
-                texto_clas = "Tu IMC indica obesidad leve."
-                recomendacion = "Se recomienda evaluación nutricional profesional."
-            elif 35 <= imc < 39.9:
-                clasificacion = "Obesidad II"
-                texto_clas = "Tu peso indica obesidad moderada."
-                recomendacion = "Acude a un especialista para seguimiento continuo."
-            else:
-                clasificacion = "Obesidad III"
-                texto_clas = "Presentas obesidad severa."
-                recomendacion = "Riesgo elevado. Busca atención médica urgente."
+        # % respecto al ideal medio
+        peso_ideal = (peso_min + peso_max) / 2
+        porcentaje_ideal = round((peso / peso_ideal) * 100, 1)
 
-            texto_final = (
-                f"📌 *Resultado del análisis nutricional*\n\n"
-                f"• IMC calculado: {imc_redondeado}\n"
-                f"• Clasificación: {clasificacion}\n"
-                f"• {texto_clas}\n\n"
-                f"🩺 Recomendación:\n{recomendacion}"
+        # Calorías estimadas TMB (método simplificado)
+        tmb = round(10*peso + 6.25*est_cm - 5*edad + 5, 2)
+        calorias = round(tmb * 1.55)
+
+        # Estado clínico
+        estado, color, recomendaciones, riesgos = self._interpretar_imc(imc)
+
+        # Mostrar todo
+        self._mostrar_resultado(
+            imc, estado, color,
+            recomendaciones, riesgos,
+            peso_min, peso_max,
+            porcentaje_ideal, calorias
+        )
+
+    # ============================================================
+    # INTERPRETACIÓN CLÍNICA
+    # ============================================================
+    def _interpretar_imc(self, imc):
+
+        if imc < 18.5:
+            return ("Bajo peso", "#E0A800",
+                    ["Aumentar consumo de proteínas.",
+                     "Consultar si hay síntomas asociados.",
+                     "Controles nutricionales frecuentes."],
+                    ["Sistema inmune debilitado", "Fatiga crónica"])
+
+        elif 18.5 <= imc <= 24.9:
+            return ("Normal", "#1B9C5A",
+                    ["Mantener dieta equilibrada.",
+                     "Actividad física regular.",
+                     "Controles preventivos recomendados."],
+                    [])
+
+        elif 25 <= imc <= 29.9:
+            return ("Sobrepeso", "#D98218",
+                    ["Reducir grasas y azúcares.",
+                     "Aumentar actividad física.",
+                     "Controlar peso regularmente."],
+                    ["Riesgo cardiovascular moderado"])
+
+        else:
+            return ("Obesidad", "#C62828",
+                    ["Evaluación clínica recomendada.",
+                     "Plan nutricional supervisado.",
+                     "Actividad física guiada."],
+                    ["Alto riesgo cardiovascular", "Mayor riesgo metabólico"])
+
+    # ============================================================
+    # MOSTRAR RESULTADO COMPLETO
+    # ============================================================
+    def _mostrar_resultado(
+        self, imc, estado, color,
+        recomendaciones, riesgos,
+        peso_min, peso_max, porcentaje_ideal,
+        calorias
+    ):
+
+        self.lbl_resultado.config(
+            text=f"IMC calculado: {imc}",
+            foreground=color
+        )
+        self.barra_color.config(bg=color)
+
+        # Limpiar
+        for w in self.frame_detalles.winfo_children():
+            w.destroy()
+        for w in self.frame_barras.winfo_children():
+            w.destroy()
+
+        # Estado
+        ttk.Label(
+            self.frame_detalles,
+            text=f"Estado: {estado}",
+            font=("Arial", 14, "bold"),
+            background="white",
+            foreground=color
+        ).pack(anchor="w", pady=(5, 10))
+
+        # Peso ideal
+        ttk.Label(
+            self.frame_detalles,
+            text=f"Peso recomendado: {peso_min} kg – {peso_max} kg",
+            background="white", font=("Arial", 12)
+        ).pack(anchor="w")
+
+        # % respecto al ideal
+        ttk.Label(
+            self.frame_detalles,
+            text=f"Porcentaje respecto al ideal: {porcentaje_ideal}%",
+            background="white", font=("Arial", 12)
+        ).pack(anchor="w", pady=(3, 8))
+
+        # Calorías estimadas
+        ttk.Label(
+            self.frame_detalles,
+            text=f"Calorías recomendadas por día (estimado): {calorias} kcal",
+            background="white", font=("Arial", 12)
+        ).pack(anchor="w", pady=(3, 10))
+
+        # Rango IMC normal
+        ttk.Label(
+            self.frame_detalles,
+            text="Rango de IMC normal: 18.5 – 24.9",
+            font=("Arial", 11, "bold"),
+            background="white"
+        ).pack(anchor="w", pady=(5, 10))
+
+        # Indicador horizontal visual
+        self._crear_barra_visual(imc)
+
+        # Recomendaciones
+        ttk.Label(
+            self.frame_detalles,
+            text="\nRecomendaciones:",
+            font=("Arial", 12, "bold"),
+            background="white"
+        ).pack(anchor="w")
+
+        for r in recomendaciones:
+            ttk.Label(
+                self.frame_detalles,
+                text=f"• {r}",
+                font=("Arial", 11),
+                background="white"
+            ).pack(anchor="w")
+
+        # Riesgos
+        if riesgos:
+            ttk.Label(
+                self.frame_detalles,
+                text="\nRiesgos asociados:",
+                font=("Arial", 12, "bold"),
+                background="white",
+                foreground="#A80000"
+            ).pack(anchor="w")
+            for r in riesgos:
+                ttk.Label(
+                    self.frame_detalles,
+                    text=f"• {r}",
+                    background="white",
+                    font=("Arial", 11),
+                    foreground="#A80000"
+                ).pack(anchor="w")
+
+    # ============================================================
+    # INDICADOR VISUAL HORIZONTAL
+    # ============================================================
+    def _crear_barra_visual(self, imc):
+        # Limpiar contenido anterior
+        for w in self.frame_barras.winfo_children():
+            w.destroy()
+
+        # Ajustes visuales
+        width = 420      # ancho total de la barra
+        height = 30      # alto de cada segmento
+        espacio_vertical = 20
+
+        canvas = tk.Canvas(
+            self.frame_barras,
+            width=width,
+            height=height + 60,
+            bg="white",
+            highlightthickness=0
+        )
+        canvas.pack(pady=10)
+
+        # Rangos IMC
+        limites = [0, 18.5, 24.9, 29.9, 40]
+        colores = ["#D9A404", "#1B9C5A", "#D98218", "#C62828"]
+        etiquetas = ["Bajo peso", "Normal", "Sobrepeso", "Obesidad"]
+
+        # Función para mapear el IMC al ancho de la barra
+        def map_imc(val):
+            val = max(0, min(40, val))
+            return (val / 40) * width
+
+        # Dibujar segmentos
+                # Tamaño fijo para segmentos (4 iguales)
+        segmento = width / 4
+
+        for i in range(4):
+            x1 = i * segmento
+            x2 = x1 + segmento
+
+            # Dibujar segmento con ancho fijo
+            canvas.create_rectangle(
+                x1, 0,
+                x2, height,
+                fill=colores[i],
+                outline="white"
             )
 
-            self.lbl_resultado.config(text=texto_final, fg="#333")
+            # Etiqueta centrada
+            canvas.create_text(
+                (x1 + x2) / 2,
+                height / 2,
+                text=etiquetas[i],
+                font=("Arial", 11, "bold"),
+                fill="white"
+            )
+        # Marcador ▲ (flecha)
+        x_imc = map_imc(imc)
+        canvas.create_polygon(
+            x_imc - 8, height + 10,
+            x_imc + 8, height + 10,
+            x_imc, height - 2,
+            fill="black"
+        )
 
-        except ValueError:
-            self.lbl_resultado.config(text="⚠️ Ingresa solo números válidos.", fg="red")
+        # Texto IMC más separado y centrado
+        canvas.create_text(
+            x_imc,
+            height + 30,
+            text=f"Tu IMC: {imc}",
+            font=("Arial", 11, "bold"),
+            fill="black"
+        )
