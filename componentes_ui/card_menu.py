@@ -12,6 +12,12 @@ class CardMenu(tk.Frame):
         self.W = width
         self.H = height
 
+        # Estado visual
+        self.normal_bg = "white"
+        self.hover_bg = "#F8FFFB"        # fondo suave en hover
+        self.normal_border = "#D0D0D0"
+        self.hover_border = "#4CAF50"
+
         # Tamaño real del frame
         self.configure(width=self.W, height=self.H)
         self.pack_propagate(False)
@@ -23,7 +29,7 @@ class CardMenu(tk.Frame):
             self,
             width=self.W,
             height=self.H,
-            bg="#E5E5E5"
+            bg="#E5E5E5"  # gris suave
         )
         self.shadow.place(x=4, y=4)
         self.shadow.lower()
@@ -35,9 +41,9 @@ class CardMenu(tk.Frame):
             self,
             width=self.W,
             height=self.H,
-            bg="white",
+            bg=self.normal_bg,
             highlightthickness=1,
-            highlightbackground="#D0D0D0"
+            highlightbackground=self.normal_border
         )
         self.card.place(x=0, y=0)
         self.card.lift()
@@ -45,7 +51,7 @@ class CardMenu(tk.Frame):
         # -------------------------------
         # CONTENIDO
         # -------------------------------
-        interior = tk.Frame(self.card, bg="white")
+        interior = tk.Frame(self.card, bg=self.normal_bg)
         interior.place(relx=0.5, rely=0.5, anchor="center")
 
         # =====================================
@@ -58,57 +64,73 @@ class CardMenu(tk.Frame):
             img = img.resize((80, 80), Image.LANCZOS)
             self.icon_image = ImageTk.PhotoImage(img)
 
-            lbl_icon = tk.Label(interior, image=self.icon_image, bg="white")
-            lbl_icon.pack(pady=(0, 8))
-            self._make_clickable(lbl_icon)
-
+            lbl_icon = tk.Label(interior, image=self.icon_image, bg=self.normal_bg)
         else:
             lbl_icon = tk.Label(
                 interior,
                 text=icono if icono else "❔",
                 font=("Arial", 45),
-                bg="white"
+                bg=self.normal_bg
             )
-            lbl_icon.pack(pady=(0, 8))
-            self._make_clickable(lbl_icon)
+
+        lbl_icon.pack(pady=(0, 8))
+        self._make_clickable(lbl_icon)
 
         # TEXTO
         lbl_texto = tk.Label(
             interior,
             text=texto,
             font=("Arial", 14, "bold"),
-            bg="white"
+            bg=self.normal_bg
         )
         lbl_texto.pack()
         self._make_clickable(lbl_texto)
 
-        # Bind general
-        self._make_clickable(self.card)
-        self._make_clickable(self)
-
-        # -----------------------------
-        # EFECTOS HOVER
-        # -----------------------------
-        self.card.bind("<Enter>", self._hover_on)
-        self.card.bind("<Leave>", self._hover_off)
-        self.bind("<Enter>", self._hover_on)
-        self.bind("<Leave>", self._hover_off)
+        # Binds generales (hover + click)
+        self._apply_hover_events(self)
+        self._apply_hover_events(self.card)
+        self._apply_hover_events(interior)
+        self._apply_hover_events(lbl_icon)
+        self._apply_hover_events(lbl_texto)
 
     # =====================================================
     # CLICKABLE
     # =====================================================
     def _make_clickable(self, widget):
-        widget.bind("<Button-1>", lambda e: self.comando() if self.comando else None)
+        widget.bind("<Button-1>", lambda e: self._click_effect())
+
+    def _click_effect(self):
+        # Efecto de clic comprimido
+        self.card.place(x=1, y=1)
+        self.shadow.place(x=5, y=5)
+        self.after(120, lambda: self._reset_click())
+
+        if self.comando:
+            self.after(150, self.comando)
+
+    def _reset_click(self):
+        self.card.place(x=0, y=0)
+        self.shadow.place(x=6, y=6)
 
     # =====================================================
     # HOVER
     # =====================================================
+    def _apply_hover_events(self, widget):
+        widget.bind("<Enter>", self._hover_on)
+        widget.bind("<Leave>", self._hover_off)
+
     def _hover_on(self, event):
-        self.card.configure(highlightbackground="#8CCFC1", highlightthickness=2)
+        self.card.configure(
+            highlightbackground=self.hover_border,
+            highlightthickness=2,
+            bg=self.hover_bg
+        )
         self.shadow.place(x=6, y=6)
-        self.shadow.lower()
 
     def _hover_off(self, event):
-        self.card.configure(highlightbackground="#D0D0D0", highlightthickness=1)
+        self.card.configure(
+            highlightbackground=self.normal_border,
+            highlightthickness=1,
+            bg=self.normal_bg
+        )
         self.shadow.place(x=4, y=4)
-        self.shadow.lower()
