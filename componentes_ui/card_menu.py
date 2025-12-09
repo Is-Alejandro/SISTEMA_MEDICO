@@ -14,7 +14,7 @@ class CardMenu(tk.Frame):
 
         # Estado visual
         self.normal_bg = "white"
-        self.hover_bg = "#F8FFFB"        # fondo suave en hover
+        self.hover_bg = "#F8FFFB"  # fondo sutil
         self.normal_border = "#D0D0D0"
         self.hover_border = "#4CAF50"
 
@@ -23,15 +23,15 @@ class CardMenu(tk.Frame):
         self.pack_propagate(False)
 
         # -------------------------------
-        # SOMBRA
+        # SOMBRA (más suave y realista)
         # -------------------------------
         self.shadow = tk.Frame(
             self,
             width=self.W,
             height=self.H,
-            bg="#E5E5E5"  # gris suave
+            bg="#ECECEC"  # gris más suave
         )
-        self.shadow.place(x=4, y=4)
+        self.shadow.place(x=3, y=3)  # sombra más corta y elegante
         self.shadow.lower()
 
         # -------------------------------
@@ -63,8 +63,8 @@ class CardMenu(tk.Frame):
             img = Image.open(image_path)
             img = img.resize((80, 80), Image.LANCZOS)
             self.icon_image = ImageTk.PhotoImage(img)
-
             lbl_icon = tk.Label(interior, image=self.icon_image, bg=self.normal_bg)
+
         else:
             lbl_icon = tk.Label(
                 interior,
@@ -86,12 +86,9 @@ class CardMenu(tk.Frame):
         lbl_texto.pack()
         self._make_clickable(lbl_texto)
 
-        # Binds generales (hover + click)
-        self._apply_hover_events(self)
-        self._apply_hover_events(self.card)
-        self._apply_hover_events(interior)
-        self._apply_hover_events(lbl_icon)
-        self._apply_hover_events(lbl_texto)
+        # Binds globales: hover y click en toda la tarjeta
+        for w in (self, self.card, interior, lbl_icon, lbl_texto):
+            self._apply_hover_events(w)
 
     # =====================================================
     # CLICKABLE
@@ -100,17 +97,18 @@ class CardMenu(tk.Frame):
         widget.bind("<Button-1>", lambda e: self._click_effect())
 
     def _click_effect(self):
-        # Efecto de clic comprimido
+        # efecto suave de presión
         self.card.place(x=1, y=1)
-        self.shadow.place(x=5, y=5)
-        self.after(120, lambda: self._reset_click())
+        self.shadow.place(x=4, y=4)
+
+        self.after(100, lambda: self._reset_click())
 
         if self.comando:
             self.after(150, self.comando)
 
     def _reset_click(self):
         self.card.place(x=0, y=0)
-        self.shadow.place(x=6, y=6)
+        self.shadow.place(x=3, y=3)
 
     # =====================================================
     # HOVER
@@ -125,7 +123,9 @@ class CardMenu(tk.Frame):
             highlightthickness=2,
             bg=self.hover_bg
         )
-        self.shadow.place(x=6, y=6)
+        # sombra ligeramente movida = elevación moderada
+        self.shadow.configure(bg="#E0E0E0")
+        self.shadow.place(x=4, y=4)
 
     def _hover_off(self, event):
         self.card.configure(
@@ -133,4 +133,6 @@ class CardMenu(tk.Frame):
             highlightthickness=1,
             bg=self.normal_bg
         )
-        self.shadow.place(x=4, y=4)
+        # volver a sombra normal
+        self.shadow.configure(bg="#ECECEC")
+        self.shadow.place(x=3, y=3)
