@@ -1,47 +1,114 @@
 import tkinter as tk
+from PIL import Image, ImageTk
+import os
+
 
 class CardMenu(tk.Frame):
-    def __init__(self, parent, icono, texto, comando, width=240, height=160):
-        super().__init__(parent, width=width, height=height, bg="white")
+    def __init__(self, parent, icono=None, texto="", comando=None, image_path=None,
+                 width=240, height=160):
+        super().__init__(parent, bg="white")
 
         self.comando = comando
-        self.icono = icono
-        self.texto = texto
+        self.W = width
+        self.H = height
 
-        # Estilo de borde simple (luego lo haremos moderno con ttkbootstrap)
-        self.configure(
-            highlightbackground="#C9C9C9",
-            highlightthickness=1,
-            cursor="hand2"
+        # Tamaño real del frame
+        self.configure(width=self.W, height=self.H)
+        self.pack_propagate(False)
+
+        # -------------------------------
+        # SOMBRA
+        # -------------------------------
+        self.shadow = tk.Frame(
+            self,
+            width=self.W,
+            height=self.H,
+            bg="#E5E5E5"
         )
+        self.shadow.place(x=4, y=4)
+        self.shadow.lower()
 
-        # Evita que el frame se reduzca al contenido
-        self.grid_propagate(False)
+        # -------------------------------
+        # CARD PRINCIPAL
+        # -------------------------------
+        self.card = tk.Frame(
+            self,
+            width=self.W,
+            height=self.H,
+            bg="white",
+            highlightthickness=1,
+            highlightbackground="#D0D0D0"
+        )
+        self.card.place(x=0, y=0)
+        self.card.lift()
 
-        # Ícono grande
-        lbl_icono = tk.Label(self, text=icono, font=("Arial", 45), bg="white")
-        lbl_icono.pack(pady=(15, 0))
+        # -------------------------------
+        # CONTENIDO
+        # -------------------------------
+        interior = tk.Frame(self.card, bg="white")
+        interior.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Texto debajo
-        lbl_texto = tk.Label(self, text=texto, font=("Arial", 14, "bold"), bg="white")
-        lbl_texto.pack(pady=(8, 0))
+        # =====================================
+        # ICONO PNG
+        # =====================================
+        self.icon_image = None
 
-        # Eventos click en toda la tarjeta
-        self.bind("<Button-1>", lambda e: self.comando())
-        lbl_icono.bind("<Button-1>", lambda e: self.comando())
-        lbl_texto.bind("<Button-1>", lambda e: self.comando())
+        if image_path and os.path.exists(image_path):
+            img = Image.open(image_path)
+            img = img.resize((80, 80), Image.LANCZOS)
+            self.icon_image = ImageTk.PhotoImage(img)
 
-        # Hover suave (opcional, antes de aplicar ttkbootstrap)
-        self.bind("<Enter>", lambda e: self._hover(True))
-        self.bind("<Leave>", lambda e: self._hover(False))
-        lbl_icono.bind("<Enter>", lambda e: self._hover(True))
-        lbl_icono.bind("<Leave>", lambda e: self._hover(False))
-        lbl_texto.bind("<Enter>", lambda e: self._hover(True))
-        lbl_texto.bind("<Leave>", lambda e: self._hover(False))
+            lbl_icon = tk.Label(interior, image=self.icon_image, bg="white")
+            lbl_icon.pack(pady=(0, 8))
+            self._make_clickable(lbl_icon)
 
-    def _hover(self, activo):
-        """Efecto visual al pasar el mouse."""
-        if activo:
-            self.config(highlightbackground="#8E8E8E", bg="#FAFAFA")
         else:
-            self.config(highlightbackground="#C9C9C9", bg="white")
+            lbl_icon = tk.Label(
+                interior,
+                text=icono if icono else "❔",
+                font=("Arial", 45),
+                bg="white"
+            )
+            lbl_icon.pack(pady=(0, 8))
+            self._make_clickable(lbl_icon)
+
+        # TEXTO
+        lbl_texto = tk.Label(
+            interior,
+            text=texto,
+            font=("Arial", 14, "bold"),
+            bg="white"
+        )
+        lbl_texto.pack()
+        self._make_clickable(lbl_texto)
+
+        # Bind general
+        self._make_clickable(self.card)
+        self._make_clickable(self)
+
+        # -----------------------------
+        # EFECTOS HOVER
+        # -----------------------------
+        self.card.bind("<Enter>", self._hover_on)
+        self.card.bind("<Leave>", self._hover_off)
+        self.bind("<Enter>", self._hover_on)
+        self.bind("<Leave>", self._hover_off)
+
+    # =====================================================
+    # CLICKABLE
+    # =====================================================
+    def _make_clickable(self, widget):
+        widget.bind("<Button-1>", lambda e: self.comando() if self.comando else None)
+
+    # =====================================================
+    # HOVER
+    # =====================================================
+    def _hover_on(self, event):
+        self.card.configure(highlightbackground="#8CCFC1", highlightthickness=2)
+        self.shadow.place(x=6, y=6)
+        self.shadow.lower()
+
+    def _hover_off(self, event):
+        self.card.configure(highlightbackground="#D0D0D0", highlightthickness=1)
+        self.shadow.place(x=4, y=4)
+        self.shadow.lower()

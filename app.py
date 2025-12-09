@@ -1,7 +1,9 @@
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 import tkinter as tk
 
 # ============================
-# IMPORTAR TODAS LAS PANTALLAS
+# IMPORTAR PANTALLAS
 # ============================
 from pantallas.inicio import PantallaInicio
 from pantallas.menu_principal import MenuPrincipal
@@ -27,20 +29,18 @@ from pantallas.configuracion_sistema import PantallaConfiguracionSistema
 from pantallas.logs_sistema import PantallaLogsSistema
 
 
-
-class Aplicacion(tk.Tk):
+class Aplicacion(ttk.Window):   # <-- AHORA USAMOS ttk.Window
     def __init__(self):
-        super().__init__()
+        super().__init__(themename="minty")   # <-- TEMA PROFESIONAL RECOMENDADO
 
         self.title("Sistema Experto de Control Médico")
         self.geometry("1100x700")
-        self.configure(bg="white")
 
         # Contenedor principal donde se cargan las pantallas
-        self.contenedor = tk.Frame(self, bg="white")
+        self.contenedor = ttk.Frame(self)
         self.contenedor.pack(fill="both", expand=True)
 
-        # Estructura dinámica donde guardamos usuarios, doctores y citas
+        # Estructuras dinámicas
         self.usuarios = []
         self.doctores = []
         self.citas = []
@@ -49,7 +49,7 @@ class Aplicacion(tk.Tk):
         self.mostrar_pantalla("inicio")
 
     # =================================================================
-    # FUNCIÓN PRINCIPAL PARA CAMBIAR ENTRE PANTALLAS
+    # CAMBIO DE PANTALLAS
     # =================================================================
     def mostrar_pantalla(self, nombre_pantalla):
 
@@ -95,7 +95,7 @@ class Aplicacion(tk.Tk):
             )
 
         # ============================
-        # ADMINISTRADOR
+        # ADMIN
         # ============================
         elif nombre_pantalla == "admin":
             pantalla = PantallaAdmin(
@@ -117,15 +117,11 @@ class Aplicacion(tk.Tk):
                 self.contenedor, lambda: self.mostrar_pantalla("admin")
             )
 
-        # ============================
-        # ERROR SI NO EXISTE LA PANTALLA
-        # ============================
         else:
             raise ValueError(f"Pantalla '{nombre_pantalla}' no está definida.")
 
         # Mostrar pantalla seleccionada
         pantalla.pack(fill="both", expand=True)
-
 
 
 # =====================================================================
