@@ -6,7 +6,14 @@ from componentes_ui.layout_utils import crear_columnas
 
 from modulos.imc_form import construir_formulario
 from modulos.imc_resultados import construir_panel_resultados, actualizar_resultados
-from modulos.imc_graficos import construir_panel_graficos, actualizar_grafico
+
+# 🔵 IMPORTAMOS NUEVAS FUNCIONES DE GRÁFICOS
+from modulos.imc_graficos import (
+    construir_panel_graficos_duales,
+    actualizar_grafico_principal,
+    actualizar_grafico_comparativo
+)
+
 from modulos.imc_core import calcular_imc_completo
 
 from modulos.imc_detalles import (
@@ -35,7 +42,7 @@ class PantallaIMC(UIBaseScreen):
         contenedor.pack(fill="both", expand=True, padx=20, pady=20)
 
         # ---------------------------------------------------
-        # 5 COLUMNAS (la solución correcta)
+        # 5 COLUMNAS
         # ---------------------------------------------------
         col_form, col_result, col_ana, col_reco, col_ries = crear_columnas(
             contenedor,
@@ -73,9 +80,10 @@ class PantallaIMC(UIBaseScreen):
         self.tarjeta_riesgos = crear_tarjeta_riesgos(card_riesgos)
 
         # ---------------------------------------------------
-        # GRÁFICO INFERIOR
+        # GRÁFICOS INFERIORES (NUEVO SISTEMA DUAL)
         # ---------------------------------------------------
-        self.panel_graficos = construir_panel_graficos(self)
+        # 🔵 Ahora tenemos 2 gráficos: IMC y Comparativo IMC vs Ideal
+        self.panel_graficos = construir_panel_graficos_duales(self)
 
     # ---------------------------------------------------
     # FUNCIÓN PARA CREAR UNA CARD REUTILIZABLE
@@ -108,8 +116,12 @@ class PantallaIMC(UIBaseScreen):
     def on_calcular(self, peso, talla, edad):
         datos = calcular_imc_completo(peso, talla, edad)
 
+        # Actualizar tarjetas superiores
         actualizar_resultados(self.panel_resultados, datos)
         actualizar_tarjeta_analisis(self.tarjeta_analisis, datos)
         actualizar_tarjeta_recomendaciones(self.tarjeta_recomendaciones, datos["recomendaciones"])
         actualizar_tarjeta_riesgos(self.tarjeta_riesgos, datos["riesgos"])
-        actualizar_grafico(self.panel_graficos, datos)
+
+        # 🔵 Actualizar gráficos inferiores
+        actualizar_grafico_principal(self.panel_graficos, datos)
+        actualizar_grafico_comparativo(self.panel_graficos, datos)
