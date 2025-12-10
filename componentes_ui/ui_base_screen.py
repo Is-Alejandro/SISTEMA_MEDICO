@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from ttkbootstrap import Style   # ⬅️ Importante: usar Bootstrap Style
 
 
 class UIBaseScreen(ttk.Frame):
@@ -95,30 +96,40 @@ class UIBaseScreen(ttk.Frame):
         )
 
     # =====================================================
-    # ESTILOS PROFESIONALES
+    # ESTILOS PROFESIONALES (BOOTSTRAP)
     # =====================================================
     def _configurar_estilos(self):
-        style = ttk.Style()
+        style = Style()   # ⬅️ AHORA SÍ FUNCIONA CON EL TEMA MINTY
 
+        # Fondo base
         style.configure("Base.TFrame", background="white")
 
+        # ================================
+        # TÍTULO PRINCIPAL (MÉDICO)
+        # ================================
         style.configure(
             "Titulo.TLabel",
-            font=("Arial", 26, "bold"),
-            foreground="#333",
-            background="white"
+            font=("Segoe UI", 42, "bold"),  # Tamaño grande ahora sí funciona
+            foreground="#0ea5e9",          # Celeste clínico
+            padding=(0, 10)
         )
 
+        # ================================
+        # SUBTÍTULO PROFESIONAL
+        # ================================
         style.configure(
             "Subtitulo.TLabel",
-            font=("Arial", 12),
-            foreground="#777",
-            background="white"
+            font=("Segoe UI", 18),
+            foreground="#6b7280",
+            padding=(0, 5)
         )
 
+        # ================================
+        # BOTÓN VOLVER
+        # ================================
         style.configure(
             "Volver.TButton",
-            font=("Arial", 11),
+            font=("Segoe UI", 12),
             padding=6
         )
 

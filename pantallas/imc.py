@@ -36,32 +36,94 @@ class PantallaIMC(UIBaseScreen):
         contenedor = crear_scrollable_container(self)
 
         # ---------------------------------------------------
-        # DIVIDIR EN 2 COLUMNAS (izquierda / derecha)
+        # DIVIDIR EN 3 COLUMNAS (izquierda / centro / derecha)
         # ---------------------------------------------------
-        col_izq, col_der = crear_columnas(contenedor, num_columnas=2, separacion=40)
+        col_izq, col_centro, col_der = crear_columnas(
+            contenedor,
+            num_columnas=3,
+            separacion=40
+        )
 
         # ---------------------------------------------------
-        # FORMULARIO EN LA COLUMNA IZQUIERDA
+        # COLUMNA IZQUIERDA → FORMULARIO
         # ---------------------------------------------------
         construir_formulario(col_izq, self.on_calcular)
 
         # ---------------------------------------------------
-        # PANEL DE RESULTADOS EN COLUMNA IZQUIERDA
+        # COLUMNA CENTRAL → CARD con RESULTADOS + BARRA IMC
         # ---------------------------------------------------
-        self.panel_resultados = construir_panel_resultados(col_izq)
+        card_centro = tk.Frame(
+            col_centro,
+            bg="white",
+            highlightthickness=1,
+            highlightbackground="#D0D0D0",
+            padx=15,
+            pady=15
+        )
+        card_centro.pack(fill="both", expand=True)
+
+        # Sombra (opcional)
+        sombra = tk.Frame(col_centro, bg="#E5E5E5")
+        sombra.place(relx=0, rely=0, relwidth=1, relheight=1)
+        card_centro.lift()
+
+        # PANEL RESULTADOS (dentro del CARD)
+        self.panel_resultados = construir_panel_resultados(card_centro)
 
         # ---------------------------------------------------
-        # TARJETAS CLÍNICAS EN COLUMNA DERECHA
+        # COLUMNA DERECHA → 3 CARDS HORIZONTALES
         # ---------------------------------------------------
-        self.tarjeta_analisis = crear_tarjeta_analisis(col_der)
-        self.tarjeta_recomendaciones = crear_tarjeta_recomendaciones(col_der)
-        self.tarjeta_riesgos = crear_tarjeta_riesgos(col_der)
+        contenedor_cards = ttk.Frame(col_der)
+        contenedor_cards.pack(fill="x", pady=10)
+
+        # Crear 3 columnas internas para las cards
+        col_a = ttk.Frame(contenedor_cards)
+        col_b = ttk.Frame(contenedor_cards)
+        col_c = ttk.Frame(contenedor_cards)
+
+        col_a.pack(side="left", expand=True, fill="both", padx=5)
+        col_b.pack(side="left", expand=True, fill="both", padx=5)
+        col_c.pack(side="left", expand=True, fill="both", padx=5)
+
+        # Función genérica para crear cards visuales
+        def crear_card(parent, titulo):
+            card = tk.Frame(
+                parent,
+                bg="white",
+                highlightthickness=1,
+                highlightbackground="#D0D0D0",
+                padx=12,
+                pady=12
+            )
+            card.pack(fill="both", expand=True)
+
+            lbl = ttk.Label(
+                card,
+                text=titulo,
+                font=("Segoe UI", 14, "bold"),
+                foreground="#0ea5e9",
+                background="white"
+            )
+            lbl.pack(anchor="w", pady=(0, 8))
+
+            return card
+
+        # CARD 1: ANÁLISIS CLÍNICO
+        card_analisis = crear_card(col_a, "Análisis clínico")
+        self.tarjeta_analisis = crear_tarjeta_analisis(card_analisis)
+
+        # CARD 2: RECOMENDACIONES
+        card_recomendaciones = crear_card(col_b, "Recomendaciones")
+        self.tarjeta_recomendaciones = crear_tarjeta_recomendaciones(card_recomendaciones)
+
+        # CARD 3: RIESGOS CLÍNICOS
+        card_riesgos = crear_card(col_c, "Riesgos clínicos")
+        self.tarjeta_riesgos = crear_tarjeta_riesgos(card_riesgos)
 
         # ---------------------------------------------------
-        # GRÁFICO IMC (DEBAJO)
+        # GRÁFICO IMC (DEBAJO DE TODO)
         # ---------------------------------------------------
         self.panel_graficos = construir_panel_graficos(self)
-
 
     # ============================================================
     # CALLBACK: CALCULAR IMC
