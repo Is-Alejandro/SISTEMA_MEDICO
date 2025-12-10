@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from componentes_ui.ui_base_screen import UIBaseScreen
-from componentes_ui.layout_utils import crear_scrollable_container, crear_columnas
+from componentes_ui.layout_utils import crear_columnas
 
 # Módulos IMC
 from modulos.imc_form import construir_formulario
@@ -31,9 +31,10 @@ class PantallaIMC(UIBaseScreen):
         )
 
         # ---------------------------------------------------
-        # CONTENEDOR SCROLLEABLE (zona izquierda)
+        # CONTENEDOR PRINCIPAL SIN SCROLL
         # ---------------------------------------------------
-        contenedor = crear_scrollable_container(self)
+        contenedor = tk.Frame(self, bg="white")
+        contenedor.pack(fill="both", expand=True, padx=20, pady=20)
 
         # ---------------------------------------------------
         # DIVIDIR EN 3 COLUMNAS (izquierda / centro / derecha)
@@ -50,7 +51,7 @@ class PantallaIMC(UIBaseScreen):
         construir_formulario(col_izq, self.on_calcular)
 
         # ---------------------------------------------------
-        # COLUMNA CENTRAL → CARD con RESULTADOS + BARRA IMC
+        # COLUMNA CENTRAL → CARD RESULTADOS + BARRA IMC
         # ---------------------------------------------------
         card_centro = tk.Frame(
             col_centro,
@@ -62,7 +63,7 @@ class PantallaIMC(UIBaseScreen):
         )
         card_centro.pack(fill="both", expand=True)
 
-        # Sombra (opcional)
+        # Sombra decorativa (opcional)
         sombra = tk.Frame(col_centro, bg="#E5E5E5")
         sombra.place(relx=0, rely=0, relwidth=1, relheight=1)
         card_centro.lift()
@@ -71,12 +72,12 @@ class PantallaIMC(UIBaseScreen):
         self.panel_resultados = construir_panel_resultados(card_centro)
 
         # ---------------------------------------------------
-        # COLUMNA DERECHA → 3 CARDS HORIZONTALES
+        # COLUMNA DERECHA → 3 CARDS CLÍNICAS
         # ---------------------------------------------------
         contenedor_cards = ttk.Frame(col_der)
         contenedor_cards.pack(fill="x", pady=10)
 
-        # Crear 3 columnas internas para las cards
+        # Crear 3 columnas internas para cada card
         col_a = ttk.Frame(contenedor_cards)
         col_b = ttk.Frame(contenedor_cards)
         col_c = ttk.Frame(contenedor_cards)
@@ -85,7 +86,7 @@ class PantallaIMC(UIBaseScreen):
         col_b.pack(side="left", expand=True, fill="both", padx=5)
         col_c.pack(side="left", expand=True, fill="both", padx=5)
 
-        # Función genérica para crear cards visuales
+        # Función para crear una card visual
         def crear_card(parent, titulo):
             card = tk.Frame(
                 parent,
@@ -121,7 +122,7 @@ class PantallaIMC(UIBaseScreen):
         self.tarjeta_riesgos = crear_tarjeta_riesgos(card_riesgos)
 
         # ---------------------------------------------------
-        # GRÁFICO IMC (DEBAJO DE TODO)
+        # GRÁFICO IMC (PARTE INFERIOR)
         # ---------------------------------------------------
         self.panel_graficos = construir_panel_graficos(self)
 
@@ -134,7 +135,7 @@ class PantallaIMC(UIBaseScreen):
         # Resultado básico (IMC + estado)
         actualizar_resultados(self.panel_resultados, datos)
 
-        # Análisis clínico (peso ideal, kcal, % ideal)
+        # Análisis clínico
         actualizar_tarjeta_analisis(self.tarjeta_analisis, datos)
 
         # Recomendaciones
