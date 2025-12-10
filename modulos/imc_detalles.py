@@ -1,13 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
 
-
 # -------------------------------------------------------
-# TARJETA GENERAL CON ESTILO MODERNO
+# TARJETA GENERAL UNIFICADA
 # -------------------------------------------------------
 def _crear_tarjeta(parent, titulo, bg_color):
     frame = tk.Frame(parent, bg=bg_color, padx=15, pady=15)
-    frame.pack(fill="both", expand=True, pady=10)   # ⬅ EXPANDE LA TARJETA
+    frame.pack(fill="both", expand=True, pady=10)
 
     lbl_title = tk.Label(
         frame,
@@ -19,6 +18,10 @@ def _crear_tarjeta(parent, titulo, bg_color):
     )
     lbl_title.pack(anchor="w", pady=(0, 10))
 
+    # 🔹 TODAS LAS CARDS TENDRÁN body
+    frame.body = tk.Frame(frame, bg=bg_color)
+    frame.body.pack(fill="both", expand=True)
+
     return frame
 
 
@@ -28,16 +31,15 @@ def _crear_tarjeta(parent, titulo, bg_color):
 def crear_tarjeta_analisis(parent):
     frame = _crear_tarjeta(parent, "Análisis clínico", "#f0f4ff")
 
-    # 🔹 Agregamos wraplength para evitar cortes
-    frame.lbl_peso = tk.Label(frame, text="", bg="#f0f4ff", font=("Arial", 12),
+    frame.lbl_peso = tk.Label(frame.body, text="", bg="#f0f4ff", font=("Arial", 12),
                               wraplength=250, justify="left", anchor="w")
     frame.lbl_peso.pack(anchor="w", pady=3)
 
-    frame.lbl_pct = tk.Label(frame, text="", bg="#f0f4ff", font=("Arial", 12),
+    frame.lbl_pct = tk.Label(frame.body, text="", bg="#f0f4ff", font=("Arial", 12),
                              wraplength=250, justify="left", anchor="w")
     frame.lbl_pct.pack(anchor="w", pady=3)
 
-    frame.lbl_kcal = tk.Label(frame, text="", bg="#f0f4ff", font=("Arial", 12),
+    frame.lbl_kcal = tk.Label(frame.body, text="", bg="#f0f4ff", font=("Arial", 12),
                               wraplength=250, justify="left", anchor="w")
     frame.lbl_kcal.pack(anchor="w", pady=3)
 
@@ -57,51 +59,47 @@ def actualizar_tarjeta_analisis(frame, datos):
 
 
 # -------------------------------------------------------
-# TARJETA RECOMENDACIONES
+# TARJETA: RECOMENDACIONES
 # -------------------------------------------------------
 def crear_tarjeta_recomendaciones(parent):
     frame = _crear_tarjeta(parent, "Recomendaciones", "#eaf7ea")
-
-    frame.contenido = tk.Frame(frame, bg="#eaf7ea")
-    frame.contenido.pack(fill="both", expand=True)   # ⬅ EXPANDE ESPACIO PARA TEXTO
     return frame
 
 
 def actualizar_tarjeta_recomendaciones(frame, lista):
-    for w in frame.contenido.winfo_children():
+    # Limpiar contenido
+    for w in frame.body.winfo_children():
         w.destroy()
 
+    # Crear nuevas etiquetas
     for r in lista:
         tk.Label(
-            frame.contenido,
+            frame.body,
             text=f"• {r}",
             bg="#eaf7ea",
             fg="#222",
             font=("Arial", 11),
-            wraplength=250,       # ⬅ EVITA QUE SE CORTEN LAS LÍNEAS
+            wraplength=250,
             justify="left",
             anchor="w"
         ).pack(anchor="w", pady=2)
 
 
 # -------------------------------------------------------
-# TARJETA RIESGOS
+# TARJETA: RIESGOS
 # -------------------------------------------------------
 def crear_tarjeta_riesgos(parent):
     frame = _crear_tarjeta(parent, "Riesgos clínicos", "#ffecec")
-
-    frame.contenido = tk.Frame(frame, bg="#ffecec")
-    frame.contenido.pack(fill="both", expand=True)
     return frame
 
 
 def actualizar_tarjeta_riesgos(frame, lista):
-    for w in frame.contenido.winfo_children():
+    for w in frame.body.winfo_children():
         w.destroy()
 
     if not lista:
         tk.Label(
-            frame.contenido,
+            frame.body,
             text="No presenta riesgos clínicos.",
             bg="#ffecec",
             fg="#444",
@@ -114,12 +112,12 @@ def actualizar_tarjeta_riesgos(frame, lista):
 
     for r in lista:
         tk.Label(
-            frame.contenido,
+            frame.body,
             text=f"• {r}",
             bg="#ffecec",
             fg="#b30000",
             font=("Arial", 11, "bold"),
-            wraplength=250,       # ⬅ LÍNEAS AUTOMÁTICAS
+            wraplength=250,
             justify="left",
             anchor="w"
         ).pack(anchor="w", pady=2)
