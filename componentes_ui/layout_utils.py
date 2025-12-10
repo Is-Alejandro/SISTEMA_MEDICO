@@ -8,11 +8,6 @@ from componentes_ui.scrollable_frame import ScrollableFrame
 #  CREA UN CONTENEDOR CON SCROLL VERTICAL
 # -----------------------------------------------------------
 def crear_scrollable_container(parent, padding=(20, 20)):
-    """
-    Crea un contenedor con scroll vertical reutilizable para pantallas largas.
-    Retorna el frame interior donde se deben colocar los widgets.
-    """
-
     container = ttk.Frame(parent)
     container.pack(fill="both", expand=True)
 
@@ -21,13 +16,11 @@ def crear_scrollable_container(parent, padding=(20, 20)):
 
     return scroll.scrollable_frame
 
+
 # -----------------------------------------------------------
 #  CREA UNA SECCIÓN CON TÍTULO
 # -----------------------------------------------------------
 def crear_seccion(parent, titulo, padding=(0, 15)):
-    """
-    Crea una sección con un título grande y devuelve un frame para contenido.
-    """
     lbl = ttk.Label(
         parent,
         text=titulo,
@@ -42,29 +35,28 @@ def crear_seccion(parent, titulo, padding=(0, 15)):
 
 
 # -----------------------------------------------------------
-#  CREA UNA FILA DE COLUMNAS
+#  CREA UNA FILA DE COLUMNAS PERFECTAMENTE DISTRIBUIDAS
 # -----------------------------------------------------------
 def crear_columnas(parent, num_columnas=2, separacion=20):
-    """
-    Crea un frame con varias columnas internas.
-    Retorna una lista de frames (uno por columna).
-    """
-
     contenedor = ttk.Frame(parent)
-    contenedor.pack(fill="x", pady=10)
+    contenedor.pack(fill="x", pady=10, expand=True)
 
     columnas = []
 
+    # Asegurar que cada columna tiene el mismo tamaño exacto
     for i in range(num_columnas):
+        contenedor.grid_columnconfigure(i, weight=1, uniform="columnas")
+
         col = ttk.Frame(contenedor)
-        col.pack(side="left", padx=(0 if i == 0 else separacion), expand=True, fill="both")
+        col.grid(row=0, column=i, padx=(0 if i == 0 else separacion), sticky="nsew")
+
         columnas.append(col)
 
     return columnas
 
 
 # -----------------------------------------------------------
-#  AGREGA ESPACIADO ESTÁNDAR
+#  PADDING ESTÁNDAR
 # -----------------------------------------------------------
 def agregar_padding(widget, pady=10):
     widget.pack_configure(pady=pady)
