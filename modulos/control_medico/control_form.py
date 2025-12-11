@@ -70,7 +70,7 @@ def construir_formulario(parent):
     # ============================================================
     # 2) CARD DE DATOS CLÍNICOS
     # ============================================================
-    card_datos = crear_card(contenedor, width=300, height=330)
+    card_datos = crear_card(contenedor, width=300, height=500)
     card_datos.grid(row=0, column=1, padx=25)
 
     tk.Label(
@@ -83,65 +83,83 @@ def construir_formulario(parent):
     form = tk.Frame(card_datos, bg="white")
     form.pack(pady=5, fill="x")
 
-    # 🔹 Usamos un ancho estándar profesional para inputs
-    input_width = 14
+    # Ancho estándar para inputs
+    input_width = 18
 
     # --- Temperatura ---
-    tk.Label(
-        form,
-        text="Temperatura (°C):",
-        font=("Segoe UI", 13),
-        bg="white"
-    ).grid(row=0, column=0, sticky="w", pady=6)
-
-    entry_temp = tk.Entry(
-        form,
-        font=("Segoe UI", 13),
-        width=input_width,
-        relief="solid",
-        borderwidth=1
-    )
+    tk.Label(form, text="Temperatura (°C):", font=("Segoe UI", 13), bg="white")\
+        .grid(row=0, column=0, sticky="w", pady=6)
+    entry_temp = tk.Entry(form, font=("Segoe UI", 13), width=10, relief="solid")
     entry_temp.grid(row=0, column=1, padx=10, pady=6, sticky="w")
 
     # --- Días con síntomas ---
-    tk.Label(
-        form,
-        text="Días con síntomas:",
-        font=("Segoe UI", 13),
-        bg="white"
-    ).grid(row=1, column=0, sticky="w", pady=6)
-
-    entry_dias = tk.Entry(
-        form,
-        font=("Segoe UI", 13),
-        width=input_width,
-        relief="solid",
-        borderwidth=1
-    )
+    tk.Label(form, text="Días con síntomas:", font=("Segoe UI", 13), bg="white")\
+        .grid(row=1, column=0, sticky="w", pady=6)
+    entry_dias = tk.Entry(form, font=("Segoe UI", 13), width=10, relief="solid")
     entry_dias.grid(row=1, column=1, padx=10, pady=6, sticky="w")
 
     # --- Tipo de tos ---
-    tk.Label(
-        form,
-        text="Tipo de tos:",
-        font=("Segoe UI", 13),
-        bg="white"
-    ).grid(row=2, column=0, sticky="w", pady=6)
-
+    tk.Label(form, text="Tipo de tos:", font=("Segoe UI", 13), bg="white")\
+        .grid(row=2, column=0, sticky="w", pady=6)
     combo_tos = ttk.Combobox(
-        form,
-        values=["seca", "con flema"],
-        state="readonly",
-        font=("Segoe UI", 12),
-        width=input_width
+        form, values=["seca", "con flema"], state="readonly",
+        font=("Segoe UI", 12), width=input_width
     )
     combo_tos.grid(row=2, column=1, padx=10, pady=6, sticky="w")
     combo_tos.set("seca")
-    combo_tos.configure(foreground="#333")
+
+    # --- Saturación SpO₂ ---
+    tk.Label(form, text="Saturación SpO₂:", font=("Segoe UI", 13), bg="white")\
+        .grid(row=3, column=0, sticky="w", pady=6)
+    combo_spo2 = ttk.Combobox(
+        form, state="readonly", font=("Segoe UI", 12), width=input_width,
+        values=[
+            "Normal (≥ 95%)",
+            "Leve (92–94%)",
+            "Moderada (88–91%)",
+            "Grave (≤ 87%)"
+        ]
+    )
+    combo_spo2.grid(row=3, column=1, padx=10, pady=6, sticky="w")
+    combo_spo2.set("Normal (≥ 95%)")
+
+    # --- Frecuencia cardiaca ---
+    tk.Label(form, text="Frecuencia cardiaca:", font=("Segoe UI", 13), bg="white")\
+        .grid(row=4, column=0, sticky="w", pady=6)
+    combo_fc = ttk.Combobox(
+        form, state="readonly", font=("Segoe UI", 12), width=input_width,
+        values=[
+            "Normal (60–100)",
+            "Bradicardia (< 60)",
+            "Taquicardia leve (100–120)",
+            "Taquicardia moderada (120–140)",
+            "Taquicardia severa (> 140)"
+        ]
+    )
+    combo_fc.grid(row=4, column=1, padx=10, pady=6, sticky="w")
+    combo_fc.set("Normal (60–100)")
+
+    # --- Frecuencia respiratoria ---
+    tk.Label(form, text="Respiración:", font=("Segoe UI", 13), bg="white")\
+        .grid(row=5, column=0, sticky="w", pady=6)
+    combo_fr = ttk.Combobox(
+        form, state="readonly", font=("Segoe UI", 12), width=input_width,
+        values=[
+            "Normal (12–20)",
+            "Leve (21–24)",
+            "Moderada (25–30)",
+            "Severa (> 30)"
+        ]
+    )
+    combo_fr.grid(row=5, column=1, padx=10, pady=6, sticky="w")
+    combo_fr.set("Normal (12–20)")
 
     widgets["temp"] = entry_temp
     widgets["dias"] = entry_dias
     widgets["tos"] = combo_tos
+    widgets["spo2"] = combo_spo2
+    widgets["fc"] = combo_fc
+    widgets["fr"] = combo_fr
 
     # ============================================================
     # 3) SIGNOS DE ALARMA
@@ -188,6 +206,7 @@ def construir_formulario(parent):
 # ============================================================
 # CARD ESTÉTICA
 # ============================================================
+
 def crear_card(parent, width, height):
     frame = tk.Frame(
         parent,
@@ -200,7 +219,7 @@ def crear_card(parent, width, height):
         highlightbackground="#e5e5e5"
     )
 
-    # --- ALTURA AUTOMÁTICA (FIX) ---
+    # Altura automática (importante)
     frame.config(width=width)
     frame.pack_propagate(True)
 

@@ -1,7 +1,7 @@
 import tkinter as tk
 
 # ============================================================
-# PANEL PROFESIONAL DE DIAGNÓSTICO CLÍNICO
+# ICONOS Y COLORES DEL NIVEL DE RIESGO
 # ============================================================
 
 ICONOS_RIESGO = {
@@ -12,84 +12,171 @@ ICONOS_RIESGO = {
 }
 
 COLORES_RIESGO = {
-    "BAJO": "#198754",      # verde
-    "MODERADO": "#ffc107",  # amarillo
-    "ALTO": "#dc3545",      # rojo
+    "BAJO": "#198754",
+    "MODERADO": "#ffc107",
+    "ALTO": "#dc3545",
     "ERROR": "#dc3545",
 }
 
+# ============================================================
+# PANEL DE RESULTADOS PRINCIPAL (AMPLIO)
+# ============================================================
 
 def construir_panel_resultados(parent):
     """
-    Crea un panel de diagnóstico profesional,
-    con fondo dinámico según el nivel de riesgo.
+    Construye un panel ancho (horizontal) donde se mostrará el diagnóstico clínico
+    en dos columnas, sin ventana emergente.
     """
 
+    # CARD ANCHA
     card = tk.Frame(
         parent,
-        bg="#ffffff",
+        bg="white",
         relief="solid",
         borderwidth=1,
-        padx=0,
-        pady=0,
-        highlightthickness=1,
+        padx=25,
+        pady=20,
         highlightbackground="#e5e5e5"
     )
 
-    # Dejamos que el alto sea automático y adaptable
-    card.config(width=380)
-    card.pack_propagate(True)
+    card.config(width=900)     # ANCHO grande
+    card.grid_propagate(True)  # PERMITE crecer verticalmente
 
-    # --- CONTENEDOR INTERNO QUE CAMBIARÁ DE COLOR ---
-    fondo = tk.Frame(card, bg="#ffffff")
-    fondo.pack(fill="both", expand=True)
-
-    # Título de riesgo
+    # ---------------------------------
+    # TÍTULO ENCABEZADO
+    # ---------------------------------
     lbl_titulo = tk.Label(
-        fondo,
+        card,
         text="Diagnóstico clínico",
-        font=("Segoe UI", 18, "bold"),
-        bg="#ffffff",
+        font=("Segoe UI", 22, "bold"),
+        bg="white",
         fg="#1c1c1c"
     )
-    lbl_titulo.pack(pady=(15, 5))
+    lbl_titulo.pack(anchor="center", pady=(0, 15))
 
-    # Icono
-    lbl_icono = tk.Label(
-        fondo,
-        text="🩺",
-        font=("Segoe UI Emoji", 40),
-        bg="#ffffff"
+    # ---------------------------------
+    # CONTENEDOR INTERNO (2 COLUMNAS)
+    # ---------------------------------
+    cont = tk.Frame(card, bg="white")
+    cont.pack(fill="x", expand=True)
+
+    cont.grid_columnconfigure(0, weight=1, minsize=430)
+    cont.grid_columnconfigure(1, weight=1, minsize=430)
+
+    # ================================
+    # COLUMNA IZQUIERDA
+    # ================================
+    col_izq = tk.Frame(cont, bg="white")
+    col_izq.grid(row=0, column=0, sticky="nw")
+
+    # DESCRIPCIÓN
+    lbl_desc = tk.Label(
+        col_izq,
+        text="📋 *Descripción general*",
+        font=("Segoe UI", 14, "bold"),
+        bg="white",
+        fg="#444"
     )
-    lbl_icono.pack(pady=(0, 10))
+    lbl_desc.pack(anchor="w", pady=(0, 5))
 
-    # Contenido de texto
-    lbl_contenido = tk.Label(
-        fondo,
-        text="(Esperando evaluación...)",
+    txt_desc = tk.Label(
+        col_izq,
+        text="(sin datos)",
         font=("Segoe UI", 12),
-        bg="#ffffff",
-        fg="#ffffff",
         justify="left",
-        anchor="nw",
-        wraplength=360  # más ancho para texto más fluido
+        bg="white",
+        fg="#333",
+        wraplength=430
     )
-    lbl_contenido.pack(fill="both", expand=True, padx=20, pady=(5, 15))
+    txt_desc.pack(anchor="w", pady=(0, 15))
 
+    # ⭐ NUEVO: RECOMENDACIÓN PRINCIPAL AQUÍ MISMO
+    lbl_rec = tk.Label(
+        col_izq,
+        text="🔎 Recomendación principal:",
+        font=("Segoe UI", 14, "bold"),
+        bg="white",
+        fg="#1c1c1c"
+    )
+    lbl_rec.pack(anchor="w", pady=(10, 0))
+
+    txt_rec = tk.Label(
+        col_izq,
+        text="(sin datos)",
+        font=("Segoe UI", 12),
+        bg="white",
+        fg="#333",
+        justify="left",
+        wraplength=430
+    )
+    txt_rec.pack(anchor="w", pady=(5, 20))
+
+    # ================================
+    # COLUMNA DERECHA
+    # ================================
+    col_der = tk.Frame(cont, bg="white")
+    col_der.grid(row=0, column=1, sticky="nw")
+
+    # FACTORES RELEVANTES
+    lbl_fact = tk.Label(
+        col_der,
+        text="🧩 *Factores relevantes*",
+        font=("Segoe UI", 14, "bold"),
+        bg="white",
+        fg="#444"
+    )
+    lbl_fact.pack(anchor="w", pady=(0, 5))
+
+    txt_fact = tk.Label(
+        col_der,
+        text="(sin datos)",
+        font=("Segoe UI", 12),
+        justify="left",
+        bg="white",
+        fg="#333",
+        wraplength=430
+    )
+    txt_fact.pack(anchor="w", pady=(0, 15))
+
+    # PLAN RECOMENDADO
+    lbl_plan = tk.Label(
+        col_der,
+        text="💊 *Plan recomendado*",
+        font=("Segoe UI", 14, "bold"),
+        bg="white",
+        fg="#444"
+    )
+    lbl_plan.pack(anchor="w", pady=(0, 5))
+
+    txt_plan = tk.Label(
+        col_der,
+        text="(sin datos)",
+        font=("Segoe UI", 12),
+        justify="left",
+        bg="white",
+        fg="#333",
+        wraplength=430
+    )
+    txt_plan.pack(anchor="w", pady=(0, 15))
+
+    # ---------------------------------
+    # RETORNAMOS REFERENCIAS
+    # ---------------------------------
     return card, {
-        "fondo": fondo,
         "titulo": lbl_titulo,
-        "icono": lbl_icono,
-        "contenido": lbl_contenido
+        "descripcion": txt_desc,
+        "recomendacion": txt_rec,
+        "factores": txt_fact,
+        "plan": txt_plan
     }
 
 
 # ============================================================
-# GENERADORES DE TEXTO DETALLADO
+# GENERACIÓN DE TEXTO
 # ============================================================
 
 def generar_descripcion(sintomas, dias, temp):
-    txt = "📋 *Descripción clínica general*\n\n"
+    txt = ""
     txt += "• El paciente presenta "
 
     if sintomas:
@@ -97,69 +184,67 @@ def generar_descripcion(sintomas, dias, temp):
     else:
         txt += "síntomas inespecíficos"
 
-    txt += f".\n• Duración: {dias} días.\n• Temperatura: {temp}°C.\n\n"
+    txt += f".\n• Duración: {dias} días.\n• Temp: {temp}°C."
     return txt
 
 
 def generar_lista_motivos(motivos):
     if not motivos:
-        return ""
-
-    txt = "🧩 *Factores relevantes detectados*\n\n"
-    for m in motivos:
-        txt += f"• {m}\n"
-    return txt + "\n"
+        return "• Sin factores relevantes."
+    return "\n".join(f"• {m}" for m in motivos)
 
 
 def generar_plan(nivel):
-    """
-    Caja interna con sugerencias clínicas según el nivel de riesgo.
-    """
-    txt = "💊 *Plan recomendado*\n\n"
-
-    txt += "• Mantener hidratación.\n"
-    txt += "• Controlar temperatura cada 4 horas.\n"
-    txt += "• Evitar esfuerzos físicos.\n"
-
     if nivel == "ALTO":
-        txt += "• Acudir a emergencias inmediatamente.\n"
+        return (
+            "• Hidratación.\n"
+            "• Control de fiebre.\n"
+            "• Evitar esfuerzo.\n"
+            "• Atención de emergencias inmediata."
+        )
     elif nivel == "MODERADO":
-        txt += "• Buscar consulta médica en 24-48 horas.\n"
+        return (
+            "• Hidratación.\n"
+            "• Control sintomático.\n"
+            "• Revisión médica en 24–48 horas."
+        )
     else:
-        txt += "• Reposo y observación de síntomas.\n"
-
-    return txt + "\n"
+        return (
+            "• Reposo.\n"
+            "• Hidratación.\n"
+            "• Monitorización de síntomas."
+        )
 
 
 # ============================================================
-# ACTUALIZACIÓN PRINCIPAL DEL PANEL
+# ACTUALIZAR CARD — SIN VENTANA EMERGENTE
 # ============================================================
 
 def actualizar_diagnostico(refs, datos):
     nivel = datos["nivel"]
+    sintomas = datos["sintomas"]
     motivos = datos["motivos"]
     recomendacion = datos["recomendacion"]
-    sintomas = datos.get("sintomas", [])
-    dias = datos.get("dias", 0)
-    temp = datos.get("temp", 0)
+    temp = datos["temp"]
+    dias = datos["dias"]
 
-    # Cambiar color de fondo según riesgo
-    color = COLORES_RIESGO.get(nivel, "#6c757d")
-    refs["fondo"].config(bg=color)
+    # TÍTULO
+    refs["titulo"].config(text=f"{nivel} – Diagnóstico clínico")
 
-    # Cambiar colores de textos
-    refs["titulo"].config(bg=color, fg="white", text=f"{nivel} - Evaluación clínica")
-    refs["icono"].config(bg=color, text=ICONOS_RIESGO.get(nivel, "❗"))
-    refs["contenido"].config(bg=color, fg="white")
+    # DESCRIPCIÓN
+    refs["descripcion"].config(
+        text=generar_descripcion(sintomas, dias, temp)
+    )
 
-    # Construcción del mensaje final
-    texto = ""
+    # RECOMENDACIÓN PRINCIPAL
+    refs["recomendacion"].config(text=recomendacion)
 
-    texto += generar_descripcion(sintomas, dias, temp)
-    texto += generar_lista_motivos(motivos)
-    texto += generar_plan(nivel)
+    # FACTORES
+    refs["factores"].config(
+        text=generar_lista_motivos(motivos)
+    )
 
-    texto += "🔎 *Recomendación principal*\n"
-    texto += recomendacion + "\n"
-
-    refs["contenido"].config(text=texto)
+    # PLAN
+    refs["plan"].config(
+        text=generar_plan(nivel)
+    )

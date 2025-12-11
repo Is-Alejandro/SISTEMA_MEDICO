@@ -7,10 +7,6 @@ from modulos.control_medico.control_resultados import (
     construir_panel_resultados,
     actualizar_diagnostico
 )
-from modulos.control_medico.control_graficos import (
-    construir_panel_graficos,
-    actualizar_graficos
-)
 
 from componentes_ui.scrollable_frame import ScrollableFrame  # IMPORTANTE
 
@@ -61,16 +57,14 @@ class PantallaControlMedico(tk.Frame):
         contenedor.config(bg="#f4f6f9")
 
         # ============================================================
-        # GRID DE 2 COLUMNAS (IZQUIERDA / DERECHA)
+        # GRID DE 2 COLUMNAS
         # ============================================================
         contenedor.grid_columnconfigure(0, weight=1)
         contenedor.grid_columnconfigure(1, weight=1)
 
         # ============================================================
-        # COLUMNA IZQUIERDA
+        # COLUMNA IZQUIERDA → FORMULARIO
         # ============================================================
-
-        # --- Síntomas ---
         self.form_frame, self.form_refs = construir_formulario(contenedor)
         self.form_frame.grid(
             row=0, column=0,
@@ -78,11 +72,7 @@ class PantallaControlMedico(tk.Frame):
             sticky="nw"
         )
 
-        # --- Datos clínicos ya vienen dentro del form (en tu versión actual) ---
-
-        # -----------------------------
         # BOTÓN EVALUAR
-        # -----------------------------
         btn_eval = tk.Button(
             contenedor,
             text="Evaluar estado clínico",
@@ -95,32 +85,23 @@ class PantallaControlMedico(tk.Frame):
             command=self.evaluar
         )
         btn_eval.grid(
-            row=1,
-            column=0,
+            row=1, column=0,
             padx=(30, 15),
             pady=(0, 15),
             sticky="w"
         )
 
-        # --- Diagnóstico clínico ---
+        # ============================================================
+        # COLUMNA DERECHA → PANEL GRANDE DE RESULTADOS
+        # ============================================================
         self.result_frame, self.result_refs = construir_panel_resultados(contenedor)
         self.result_frame.grid(
-            row=2, column=0,
-            padx=(30, 15),
-            pady=(0, 15),
-            sticky="nw"
-        )
-
-        # ============================================================
-        # COLUMNA DERECHA → GRÁFICOS
-        # ============================================================
-        self.graficos_frame, self.graficos_refs = construir_panel_graficos(contenedor)
-        self.graficos_frame.grid(
-            row=0, column=1,
+            row=0,
+            column=1,
             rowspan=3,
             padx=(15, 30),
             pady=(0, 15),
-            sticky="ne"
+            sticky="n"
         )
 
     # ============================================================
@@ -141,24 +122,31 @@ class PantallaControlMedico(tk.Frame):
                 "conciencia": self.form_refs["signos_alarma"]["conciencia"].get()
             }
 
-            # Procesar evaluación clínica
-            resultado = evaluar_control_medico(temp, dias, sintomas, tipo_tos, signos)
+            # Datos nuevos
+            spo2 = self.form_refs["spo2"].get()
+            fc = self.form_refs["fc"].get()
+            fr = self.form_refs["fr"].get()
+
+            resultado = evaluar_control_medico(
+                temp, dias, sintomas, tipo_tos, signos,
+                spo2, fc, fr
+            )
 
             resultado["sintomas"] = sintomas
             resultado["dias"] = dias
             resultado["temp"] = temp
+            resultado["spo2"] = spo2
+            resultado["fc"] = fc
+            resultado["fr"] = fr
 
+            # Se muestra SOLO en el panel grande
             actualizar_diagnostico(self.result_refs, resultado)
 
-            # Actualizar gráficos
-            datos_temp = [temp - 0.3, temp]
-            datos_sintomas = len(sintomas)
-            actualizar_graficos(self.graficos_refs, datos_temp, datos_sintomas)
-
         except ValueError:
-            actualizar_diagnostico(self.result_refs, {
+            error = {
                 "nivel": "ERROR",
                 "color": "#dc3545",
                 "motivos": ["Ingresa datos válidos."],
                 "recomendacion": "Corrige los datos e inténtalo nuevamente.",
-            })
+            }
+            actualizar_diagnostico(self.result_refs, error)
