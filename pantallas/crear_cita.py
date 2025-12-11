@@ -47,10 +47,57 @@ class PantallaCrearCita:
         ).place(x=160, y=15)
 
         # ================================
-        #  FORMULARIO
+        #  TARJETA FORMULARIO
         # ================================
-        form = tk.Frame(self.frame, bg="white", padx=30, pady=30, bd=1, relief="solid")
-        form.place(relx=0.5, rely=0.5, anchor="center")
+        form = tk.Frame(
+            self.frame,
+            bg="white",
+            padx=40,
+            pady=35,
+            bd=1,
+            relief="solid"
+        )
+        form.place(relx=0.5, rely=0.52, anchor="center")
+
+        # Etiqueta de error general
+        self.error_label = tk.Label(
+            form,
+            text="",
+            fg="#e84118",
+            bg="white",
+            font=("Arial", 11, "bold")
+        )
+        self.error_label.pack(pady=(0, 10))
+
+        # ----------------------------------------------------------
+        # FUNCIÓN PARA CREAR CAMPOS CON PLACEHOLDER
+        # ----------------------------------------------------------
+        def crear_entry_placeholder(parent, var, placeholder):
+            entry = tk.Entry(
+                parent,
+                textvariable=var,
+                font=("Arial", 12),
+                width=35,
+                relief="solid",
+                bd=1,
+                fg="#7f8c8d"
+            )
+            entry.insert(0, placeholder)
+
+            def on_focus_in(event):
+                if entry.get() == placeholder:
+                    entry.delete(0, "end")
+                    entry.config(fg="#2c3e50")
+
+            def on_focus_out(event):
+                if entry.get().strip() == "":
+                    entry.insert(0, placeholder)
+                    entry.config(fg="#7f8c8d")
+
+            entry.bind("<FocusIn>", on_focus_in)
+            entry.bind("<FocusOut>", on_focus_out)
+
+            return entry
 
         # =======================
         #  USUARIO
@@ -59,7 +106,11 @@ class PantallaCrearCita:
         self.usuario_var = tk.StringVar()
 
         usuarios_nombres = [u["nombre"] for u in self.app.usuarios]
-        self.usuario_select = ttk.Combobox(form, textvariable=self.usuario_var, values=usuarios_nombres, state="readonly")
+        self.usuario_select = ttk.Combobox(
+            form, textvariable=self.usuario_var,
+            values=usuarios_nombres, state="readonly"
+        )
+        self.usuario_select.set("Seleccione un usuario...")
         self.usuario_select.pack(pady=5)
 
         # =======================
@@ -69,7 +120,11 @@ class PantallaCrearCita:
         self.doctor_var = tk.StringVar()
 
         doctores_nombres = [d["nombre"] for d in self.app.doctores]
-        self.doctor_select = ttk.Combobox(form, textvariable=self.doctor_var, values=doctores_nombres, state="readonly")
+        self.doctor_select = ttk.Combobox(
+            form, textvariable=self.doctor_var,
+            values=doctores_nombres, state="readonly"
+        )
+        self.doctor_select.set("Seleccione un doctor...")
         self.doctor_select.pack(pady=5)
 
         self.doctor_select.bind("<<ComboboxSelected>>", self.actualizar_info_doctor)
@@ -84,16 +139,23 @@ class PantallaCrearCita:
         self.lbl_turno.pack(anchor="w")
 
         # =======================
-        #  FECHA Y HORA
+        #  FECHA
         # =======================
         tk.Label(form, text="Fecha (AAAA-MM-DD):", font=("Arial", 12, "bold"), bg="white").pack(anchor="w", pady=(10, 0))
         self.fecha_var = tk.StringVar()
-        tk.Entry(form, textvariable=self.fecha_var, font=("Arial", 12)).pack(pady=5)
+        crear_entry_placeholder(form, self.fecha_var, "Ejemplo: 2025-01-20").pack(pady=5)
 
+        # =======================
+        #  HORA
+        # =======================
         tk.Label(form, text="Hora:", font=("Arial", 12, "bold"), bg="white").pack(anchor="w")
         self.hora_var = tk.StringVar()
 
-        self.hora_select = ttk.Combobox(form, textvariable=self.hora_var, state="readonly")
+        self.hora_select = ttk.Combobox(
+            form, textvariable=self.hora_var,
+            state="readonly"
+        )
+        self.hora_select.set("Seleccione una hora...")
         self.hora_select.pack(pady=5)
 
         # =======================
@@ -101,14 +163,14 @@ class PantallaCrearCita:
         # =======================
         tk.Label(form, text="Motivo de la consulta:", font=("Arial", 12, "bold"), bg="white").pack(anchor="w", pady=(10, 0))
         self.motivo_var = tk.StringVar()
-        tk.Entry(form, textvariable=self.motivo_var, font=("Arial", 12), width=40).pack(pady=5)
+        crear_entry_placeholder(form, self.motivo_var, "Describa brevemente el motivo...").pack(pady=5)
 
         # =======================
-        #  DIAGNÓSTICO PRELIMINAR
+        #  DIAGNÓSTICO
         # =======================
         tk.Label(form, text="Diagnóstico preliminar:", font=("Arial", 12, "bold"), bg="white").pack(anchor="w", pady=(10, 0))
         self.diagnostico_var = tk.StringVar()
-        tk.Entry(form, textvariable=self.diagnostico_var, font=("Arial", 12), width=40).pack(pady=5)
+        crear_entry_placeholder(form, self.diagnostico_var, "Opcional...").pack(pady=5)
 
         # =======================
         #  BOTÓN GUARDAR
@@ -119,12 +181,14 @@ class PantallaCrearCita:
             font=("Arial", 13, "bold"),
             bg="#44bd32",
             fg="white",
+            pady=5,
+            width=20,
             command=self.guardar_cita
         ).pack(pady=20)
 
-    # ============================================================
+    # =================================================================
     #   ACTUALIZAR INFO DEL DOCTOR SELECCIONADO
-    # ============================================================
+    # =================================================================
     def actualizar_info_doctor(self, event):
         nombre = self.doctor_var.get()
 
@@ -135,9 +199,9 @@ class PantallaCrearCita:
                 self.cargar_horas_turno(d["turno"])
                 break
 
-    # ============================================================
+    # =================================================================
     #   HORARIOS POR TURNO
-    # ============================================================
+    # =================================================================
     def cargar_horas_turno(self, turno):
         if turno == "Mañana":
             horas = ["08:00", "09:00", "10:00", "11:00"]
@@ -149,13 +213,24 @@ class PantallaCrearCita:
             horas = []
 
         self.hora_select["values"] = horas
+        self.hora_select.set("Seleccione una hora...")
 
-    # ============================================================
+    # =================================================================
     #   GUARDAR CITA
-    # ============================================================
+    # =================================================================
     def guardar_cita(self):
-        if not self.usuario_var.get() or not self.doctor_var.get():
-            messagebox.showwarning("Error", "Debe seleccionar un usuario y un doctor.")
+        self.error_label.config(text="")
+
+        if self.usuario_var.get().startswith("Seleccione"):
+            self.error_label.config(text="Debe seleccionar un usuario.")
+            return
+
+        if self.doctor_var.get().startswith("Seleccione"):
+            self.error_label.config(text="Debe seleccionar un doctor.")
+            return
+
+        if self.hora_var.get().startswith("Seleccione"):
+            self.error_label.config(text="Debe seleccionar una hora.")
             return
 
         cita = {
