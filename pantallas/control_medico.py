@@ -1,9 +1,18 @@
 import tkinter as tk
+from tkinter import ttk
 
 from modulos.control_medico.control_form import construir_formulario
 from modulos.control_medico.control_core import evaluar_control_medico
-from modulos.control_medico.control_resultados import construir_panel_resultados, actualizar_diagnostico
-from modulos.control_medico.control_graficos import construir_panel_graficos, actualizar_graficos
+from modulos.control_medico.control_resultados import (
+    construir_panel_resultados,
+    actualizar_diagnostico
+)
+from modulos.control_medico.control_graficos import (
+    construir_panel_graficos,
+    actualizar_graficos
+)
+
+from componentes_ui.scrollable_frame import ScrollableFrame  # IMPORTANTE
 
 
 class PantallaControlMedico(tk.Frame):
@@ -43,27 +52,39 @@ class PantallaControlMedico(tk.Frame):
         subtitulo.pack(pady=(0, 25))
 
         # ============================================================
-        # CONTENEDOR PRINCIPAL PARA GRID
+        # SCROLL GENERAL
         # ============================================================
-        contenedor_grid = tk.Frame(self, bg="#f4f6f9")
-        contenedor_grid.pack()
+        scroll = ScrollableFrame(self)
+        scroll.pack(fill="both", expand=True)
 
-        # FORMULARIO (col 0 y col 1)
-        self.form_frame, self.form_refs = construir_formulario(contenedor_grid)
-        self.form_frame.grid(row=0, column=0, columnspan=2, padx=20)
-
-        # RESULTADOS (col 2)
-        self.result_frame, self.result_refs = construir_panel_resultados(contenedor_grid)
-        self.result_frame.grid(row=0, column=2, padx=20)
+        contenedor = scroll.scrollable_frame
+        contenedor.config(bg="#f4f6f9")
 
         # ============================================================
-        # GRÁFICOS (debajo)
+        # GRID DE 2 COLUMNAS (IZQUIERDA / DERECHA)
         # ============================================================
-        self.graficos_frame, self.graficos_refs = construir_panel_graficos(self)
+        contenedor.grid_columnconfigure(0, weight=1)
+        contenedor.grid_columnconfigure(1, weight=1)
 
+        # ============================================================
+        # COLUMNA IZQUIERDA
+        # ============================================================
+
+        # --- Síntomas ---
+        self.form_frame, self.form_refs = construir_formulario(contenedor)
+        self.form_frame.grid(
+            row=0, column=0,
+            padx=(30, 15), pady=(0, 15),
+            sticky="nw"
+        )
+
+        # --- Datos clínicos ya vienen dentro del form (en tu versión actual) ---
+
+        # -----------------------------
         # BOTÓN EVALUAR
+        # -----------------------------
         btn_eval = tk.Button(
-            self,
+            contenedor,
             text="Evaluar estado clínico",
             font=("Segoe UI", 15, "bold"),
             bg="#0d6efd",
@@ -73,7 +94,34 @@ class PantallaControlMedico(tk.Frame):
             borderwidth=0,
             command=self.evaluar
         )
-        btn_eval.pack(pady=25)
+        btn_eval.grid(
+            row=1,
+            column=0,
+            padx=(30, 15),
+            pady=(0, 15),
+            sticky="w"
+        )
+
+        # --- Diagnóstico clínico ---
+        self.result_frame, self.result_refs = construir_panel_resultados(contenedor)
+        self.result_frame.grid(
+            row=2, column=0,
+            padx=(30, 15),
+            pady=(0, 15),
+            sticky="nw"
+        )
+
+        # ============================================================
+        # COLUMNA DERECHA → GRÁFICOS
+        # ============================================================
+        self.graficos_frame, self.graficos_refs = construir_panel_graficos(contenedor)
+        self.graficos_frame.grid(
+            row=0, column=1,
+            rowspan=3,
+            padx=(15, 30),
+            pady=(0, 15),
+            sticky="ne"
+        )
 
     # ============================================================
     # FUNCIÓN EVALUAR
@@ -93,11 +141,16 @@ class PantallaControlMedico(tk.Frame):
                 "conciencia": self.form_refs["signos_alarma"]["conciencia"].get()
             }
 
+            # Procesar evaluación clínica
             resultado = evaluar_control_medico(temp, dias, sintomas, tipo_tos, signos)
+
+            resultado["sintomas"] = sintomas
+            resultado["dias"] = dias
+            resultado["temp"] = temp
 
             actualizar_diagnostico(self.result_refs, resultado)
 
-            # Gráficos (temporalmente ficticios)
+            # Actualizar gráficos
             datos_temp = [temp - 0.3, temp]
             datos_sintomas = len(sintomas)
             actualizar_graficos(self.graficos_refs, datos_temp, datos_sintomas)
@@ -106,6 +159,6 @@ class PantallaControlMedico(tk.Frame):
             actualizar_diagnostico(self.result_refs, {
                 "nivel": "ERROR",
                 "color": "#dc3545",
-                "motivos": ["Ingresa valores válidos."],
-                "recomendacion": "Corrige los datos e inténtalo nuevamente."
+                "motivos": ["Ingresa datos válidos."],
+                "recomendacion": "Corrige los datos e inténtalo nuevamente.",
             })

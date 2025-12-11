@@ -5,11 +5,14 @@ class ScrollableFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
+        # Canvas + Scrollbar
         canvas = tk.Canvas(self, highlightthickness=0)
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
 
-        self.scrollable_frame = ttk.Frame(canvas)
+        # CAMBIO IMPORTANTE → usar tk.Frame (ya no ttk.Frame)
+        self.scrollable_frame = tk.Frame(canvas, bg="#f4f6f9")
 
+        # Ajustar scrollregion al tamaño interno
         self.scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
@@ -23,7 +26,7 @@ class ScrollableFrame(ttk.Frame):
 
         self.canvas = canvas
 
-        # permitir scroll con rueda del ratón
+        # scroll con rueda del mouse
         self.scrollable_frame.bind("<Enter>", self._bind_mousewheel)
         self.scrollable_frame.bind("<Leave>", self._unbind_mousewheel)
 
