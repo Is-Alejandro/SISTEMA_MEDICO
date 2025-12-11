@@ -11,6 +11,9 @@ from pantallas.imc import PantallaIMC
 from pantallas.control_medico import PantallaControlMedico
 from pantallas.urgencias import PantallaUrgencias
 
+# NUEVO: Diabetes
+from pantallas.diabetes import PantallaDiabetes
+
 # Módulo Admin
 from pantallas.admin import PantallaAdmin
 
@@ -39,10 +42,12 @@ class Aplicacion(ttk.Window):
         self.contenedor = ttk.Frame(self)
         self.contenedor.pack(fill="both", expand=True)
 
+        # Datos globales
         self.usuarios = []
         self.doctores = []
         self.citas = []
 
+        # Pantalla inicial
         self.mostrar_pantalla("inicio")
 
     # -----------------------------------------------
@@ -56,9 +61,13 @@ class Aplicacion(ttk.Window):
     # -----------------------------------------------
     def mostrar_pantalla(self, nombre_pantalla):
 
+        # Limpiar pantalla anterior
         for widget in self.contenedor.winfo_children():
             widget.destroy()
 
+        # ===============================
+        # MATCH DE PANTALLAS DISPONIBLES
+        # ===============================
         if nombre_pantalla == "inicio":
             pantalla = PantallaInicio(self.contenedor, self)
 
@@ -74,6 +83,15 @@ class Aplicacion(ttk.Window):
         elif nombre_pantalla == "urgencias":
             pantalla = PantallaUrgencias(self.contenedor, self)
 
+        # ===============================
+        # MÓDULO DIABETES (NUEVO)
+        # ===============================
+        elif nombre_pantalla == "diabetes":
+            pantalla = PantallaDiabetes(self.contenedor, self)
+
+        # ===============================
+        # MÓDULOS DE CITAS
+        # ===============================
         elif nombre_pantalla == "registro_usuario":
             pantalla = PantallaRegistroUsuario(
                 self.contenedor, self, lambda: self.mostrar_pantalla("menu")
@@ -89,6 +107,9 @@ class Aplicacion(ttk.Window):
                 self.contenedor, self, lambda: self.mostrar_pantalla("menu")
             )
 
+        # ===============================
+        # ADMINISTRACIÓN
+        # ===============================
         elif nombre_pantalla == "admin":
             pantalla = PantallaAdmin(self.contenedor, lambda: self.mostrar_pantalla("menu"))
 
@@ -110,7 +131,10 @@ class Aplicacion(ttk.Window):
         else:
             raise ValueError(f"Pantalla '{nombre_pantalla}' no está definida.")
 
+        # Mostrar pantalla seleccionada
         pantalla.pack(fill="both", expand=True)
+
+
 # =====================================================================
 # EJECUCIÓN DE LA APLICACIÓN
 # =====================================================================
