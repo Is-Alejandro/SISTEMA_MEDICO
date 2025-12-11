@@ -1,133 +1,165 @@
 import tkinter as tk
 
 # ============================================================
-# PANEL DE RESULTADOS CLÍNICOS (DIAGNÓSTICO COMPLETO)
+# PANEL PROFESIONAL DE DIAGNÓSTICO CLÍNICO
 # ============================================================
+
+ICONOS_RIESGO = {
+    "BAJO": "🟢🩺",
+    "MODERADO": "🟡⚠️",
+    "ALTO": "🔴🚨",
+    "ERROR": "❗"
+}
+
+COLORES_RIESGO = {
+    "BAJO": "#198754",      # verde
+    "MODERADO": "#ffc107",  # amarillo
+    "ALTO": "#dc3545",      # rojo
+    "ERROR": "#dc3545",
+}
+
 
 def construir_panel_resultados(parent):
     """
-    Construye el panel de diagnóstico clínico con espacio
-    para análisis extendido, factores y recomendaciones.
+    Crea un panel de diagnóstico profesional,
+    con fondo dinámico según el nivel de riesgo.
     """
 
     card = tk.Frame(
         parent,
-        bg="white",
+        bg="#ffffff",
         relief="solid",
         borderwidth=1,
-        padx=20,
-        pady=15,
+        padx=0,
+        pady=0,
         highlightthickness=1,
         highlightbackground="#e5e5e5"
     )
-    card.config(width=380, height=420)
-    card.pack_propagate(False)
 
+    # Dejamos que el alto sea automático y adaptable
+    card.config(width=380)
+    card.pack_propagate(True)
+
+    # --- CONTENEDOR INTERNO QUE CAMBIARÁ DE COLOR ---
+    fondo = tk.Frame(card, bg="#ffffff")
+    fondo.pack(fill="both", expand=True)
+
+    # Título de riesgo
     lbl_titulo = tk.Label(
-        card,
+        fondo,
         text="Diagnóstico clínico",
-        font=("Segoe UI", 16, "bold"),
-        bg="white"
+        font=("Segoe UI", 18, "bold"),
+        bg="#ffffff",
+        fg="#1c1c1c"
     )
-    lbl_titulo.pack(pady=(5, 10))
+    lbl_titulo.pack(pady=(15, 5))
 
+    # Icono
+    lbl_icono = tk.Label(
+        fondo,
+        text="🩺",
+        font=("Segoe UI Emoji", 40),
+        bg="#ffffff"
+    )
+    lbl_icono.pack(pady=(0, 10))
+
+    # Contenido de texto
     lbl_contenido = tk.Label(
-        card,
+        fondo,
         text="(Esperando evaluación...)",
         font=("Segoe UI", 12),
-        bg="white",
-        fg="#6c757d",
+        bg="#ffffff",
+        fg="#ffffff",
         justify="left",
         anchor="nw",
-        wraplength=330
+        wraplength=360  # más ancho para texto más fluido
     )
-    lbl_contenido.pack(fill="both", expand=True)
+    lbl_contenido.pack(fill="both", expand=True, padx=20, pady=(5, 15))
 
     return card, {
+        "fondo": fondo,
         "titulo": lbl_titulo,
+        "icono": lbl_icono,
         "contenido": lbl_contenido
     }
 
 
 # ============================================================
-# FUNCIÓN PARA GENERAR TEXTO DETALLADO DEL DIAGNÓSTICO
+# GENERADORES DE TEXTO DETALLADO
 # ============================================================
 
-def generar_descripcion_clinica(sintomas, dias, temp):
-    texto = "Descripción del cuadro clínico:\n"
-    texto += "El paciente presenta "
+def generar_descripcion(sintomas, dias, temp):
+    txt = "📋 *Descripción clínica general*\n\n"
+    txt += "• El paciente presenta "
 
-    # --- Resumen de síntomas ---
     if sintomas:
-        texto += ", ".join(sintomas).lower()
+        txt += ", ".join(s.lower() for s in sintomas)
     else:
-        texto += "síntomas inespecíficos"
+        txt += "síntomas inespecíficos"
 
-    texto += f" desde hace {dias} días, con una temperatura de {temp}°C.\n"
-
-    # Interpretación general
-    if temp >= 38:
-        texto += "La fiebre elevada sugiere un proceso infeccioso activo. "
-    if "Tos" in sintomas or "Tos productiva" in sintomas:
-        texto += "La tos indica compromiso del tracto respiratorio. "
-    if "Dificultad para respirar" in sintomas:
-        texto += "La dificultad respiratoria es un síntoma de alarma importante. "
-
-    texto += "\n\n"
-    return texto
+    txt += f".\n• Duración: {dias} días.\n• Temperatura: {temp}°C.\n\n"
+    return txt
 
 
-def generar_factores_agravantes(motivos):
-    texto = "Factores que agravan la condición:\n"
+def generar_lista_motivos(motivos):
+    if not motivos:
+        return ""
+
+    txt = "🧩 *Factores relevantes detectados*\n\n"
     for m in motivos:
-        texto += f"• {m}\n"
-    texto += "\n"
-    return texto
+        txt += f"• {m}\n"
+    return txt + "\n"
 
 
-def generar_recomendaciones_detalladas(nivel):
-    texto = "Recomendaciones clínicas detalladas:\n"
+def generar_plan(nivel):
+    """
+    Caja interna con sugerencias clínicas según el nivel de riesgo.
+    """
+    txt = "💊 *Plan recomendado*\n\n"
 
-    texto += "• Mantener hidratación abundante.\n"
-    texto += "• Evitar actividad física intensa.\n"
-    texto += "• Controlar la temperatura cada 4 horas.\n"
-    texto += "• Dormir en ambiente ventilado y cómodo.\n"
+    txt += "• Mantener hidratación.\n"
+    txt += "• Controlar temperatura cada 4 horas.\n"
+    txt += "• Evitar esfuerzos físicos.\n"
 
     if nivel == "ALTO":
-        texto += "• Acudir a un centro médico inmediatamente.\n"
-        texto += "• No automedicarse con antibióticos.\n"
+        txt += "• Acudir a emergencias inmediatamente.\n"
     elif nivel == "MODERADO":
-        texto += "• Considerar consulta médica en las próximas 24 horas.\n"
+        txt += "• Buscar consulta médica en 24-48 horas.\n"
     else:
-        texto += "• Vigilar evolución y descansar adecuadamente.\n"
+        txt += "• Reposo y observación de síntomas.\n"
 
-    return texto + "\n"
+    return txt + "\n"
 
 
 # ============================================================
-# FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN
+# ACTUALIZACIÓN PRINCIPAL DEL PANEL
 # ============================================================
 
 def actualizar_diagnostico(refs, datos):
     nivel = datos["nivel"]
-    color = datos["color"]
     motivos = datos["motivos"]
     recomendacion = datos["recomendacion"]
     sintomas = datos.get("sintomas", [])
     dias = datos.get("dias", 0)
     temp = datos.get("temp", 0)
 
-    # --- Construcción del texto extendido ---
-    texto_final = ""
+    # Cambiar color de fondo según riesgo
+    color = COLORES_RIESGO.get(nivel, "#6c757d")
+    refs["fondo"].config(bg=color)
 
-    texto_final += generar_descripcion_clinica(sintomas, dias, temp)
-    texto_final += generar_factores_agravantes(motivos)
-    texto_final += generar_recomendaciones_detalladas(nivel)
+    # Cambiar colores de textos
+    refs["titulo"].config(bg=color, fg="white", text=f"{nivel} - Evaluación clínica")
+    refs["icono"].config(bg=color, text=ICONOS_RIESGO.get(nivel, "❗"))
+    refs["contenido"].config(bg=color, fg="white")
 
-    # --- Se mantiene recomendación final ---
-    texto_final += f"Recomendación principal:\n{recomendacion}\n"
+    # Construcción del mensaje final
+    texto = ""
 
-    refs["contenido"].config(
-        text=texto_final,
-        fg=color
-    )
+    texto += generar_descripcion(sintomas, dias, temp)
+    texto += generar_lista_motivos(motivos)
+    texto += generar_plan(nivel)
+
+    texto += "🔎 *Recomendación principal*\n"
+    texto += recomendacion + "\n"
+
+    refs["contenido"].config(text=texto)

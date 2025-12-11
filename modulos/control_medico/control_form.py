@@ -17,11 +17,10 @@ def construir_formulario(parent):
     """
 
     # ============================================================
-    # CONTENEDOR GENERAL (NO usar .pack aquí)
+    # CONTENEDOR GENERAL
     # ============================================================
     contenedor = tk.Frame(parent, bg="#f4f6f9")
-
-    widgets = {}  # donde guardaremos todas las referencias
+    widgets = {}
 
     # ============================================================
     # 1) CARD DE SÍNTOMAS
@@ -46,20 +45,23 @@ def construir_formulario(parent):
     frame_chips = tk.Frame(card_sintomas, bg="white")
     frame_chips.pack()
 
+    # --- Estilo moderno tipo chip ---
     for sintoma in sintomas_lista:
         var = tk.BooleanVar()
         sintomas_vars[sintoma] = var
 
         chip = tk.Checkbutton(
             frame_chips,
-            text=f" {sintoma} ",
+            text=sintoma,
             variable=var,
             font=("Segoe UI", 12),
             bg="white",
-            relief="solid",
-            borderwidth=1,
-            selectcolor="#e7f1ff",
-            activebackground="#e7f1ff"
+            fg="#333",
+            activebackground="white",
+            selectcolor="white",
+            anchor="w",
+            padx=4,
+            pady=2
         )
         chip.pack(anchor="w", pady=3)
 
@@ -79,29 +81,63 @@ def construir_formulario(parent):
     ).pack(anchor="w", pady=(5, 10))
 
     form = tk.Frame(card_datos, bg="white")
-    form.pack(pady=5)
+    form.pack(pady=5, fill="x")
 
-    # Temperatura
-    tk.Label(form, text="Temperatura (°C):", font=("Segoe UI", 13), bg="white")\
-        .grid(row=0, column=0, sticky="w", pady=8)
-    entry_temp = tk.Entry(form, font=("Segoe UI", 13), width=10)
-    entry_temp.grid(row=0, column=1, padx=10)
+    # 🔹 Usamos un ancho estándar profesional para inputs
+    input_width = 14
 
-    # Días con síntomas
-    tk.Label(form, text="Días con síntomas:", font=("Segoe UI", 13), bg="white")\
-        .grid(row=1, column=0, sticky="w", pady=8)
-    entry_dias = tk.Entry(form, font=("Segoe UI", 13), width=10)
-    entry_dias.grid(row=1, column=1, padx=10)
+    # --- Temperatura ---
+    tk.Label(
+        form,
+        text="Temperatura (°C):",
+        font=("Segoe UI", 13),
+        bg="white"
+    ).grid(row=0, column=0, sticky="w", pady=6)
 
-    # Tipo de tos
-    tk.Label(form, text="Tipo de tos:", font=("Segoe UI", 13), bg="white")\
-        .grid(row=2, column=0, sticky="w", pady=8)
-    combo_tos = ttk.Combobox(
-        form, values=["seca", "con flema"], state="readonly",
-        font=("Segoe UI", 12), width=12
+    entry_temp = tk.Entry(
+        form,
+        font=("Segoe UI", 13),
+        width=input_width,
+        relief="solid",
+        borderwidth=1
     )
-    combo_tos.grid(row=2, column=1, padx=10)
+    entry_temp.grid(row=0, column=1, padx=10, pady=6, sticky="w")
+
+    # --- Días con síntomas ---
+    tk.Label(
+        form,
+        text="Días con síntomas:",
+        font=("Segoe UI", 13),
+        bg="white"
+    ).grid(row=1, column=0, sticky="w", pady=6)
+
+    entry_dias = tk.Entry(
+        form,
+        font=("Segoe UI", 13),
+        width=input_width,
+        relief="solid",
+        borderwidth=1
+    )
+    entry_dias.grid(row=1, column=1, padx=10, pady=6, sticky="w")
+
+    # --- Tipo de tos ---
+    tk.Label(
+        form,
+        text="Tipo de tos:",
+        font=("Segoe UI", 13),
+        bg="white"
+    ).grid(row=2, column=0, sticky="w", pady=6)
+
+    combo_tos = ttk.Combobox(
+        form,
+        values=["seca", "con flema"],
+        state="readonly",
+        font=("Segoe UI", 12),
+        width=input_width
+    )
+    combo_tos.grid(row=2, column=1, padx=10, pady=6, sticky="w")
     combo_tos.set("seca")
+    combo_tos.configure(foreground="#333")
 
     widgets["temp"] = entry_temp
     widgets["dias"] = entry_dias
@@ -116,18 +152,30 @@ def construir_formulario(parent):
         font=("Segoe UI", 14, "bold"),
         fg="#dc3545",
         bg="white"
-    ).pack(pady=(15, 5))
+    ).pack(anchor="w", pady=(15, 5))
 
     var_pecho = tk.BooleanVar()
     var_conciencia = tk.BooleanVar()
 
-    tk.Checkbutton(card_datos, text="Dolor en el pecho",
-                   variable=var_pecho, bg="white",
-                   font=("Segoe UI", 12)).pack(anchor="w")
+    tk.Checkbutton(
+        card_datos,
+        text="Dolor en el pecho",
+        variable=var_pecho,
+        bg="white",
+        font=("Segoe UI", 12),
+        anchor="w",
+        pady=2
+    ).pack(anchor="w")
 
-    tk.Checkbutton(card_datos, text="Pérdida de conciencia",
-                   variable=var_conciencia, bg="white",
-                   font=("Segoe UI", 12)).pack(anchor="w")
+    tk.Checkbutton(
+        card_datos,
+        text="Pérdida de conciencia",
+        variable=var_conciencia,
+        bg="white",
+        font=("Segoe UI", 12),
+        anchor="w",
+        pady=2
+    ).pack(anchor="w")
 
     widgets["signos_alarma"] = {
         "pecho": var_pecho,
@@ -151,6 +199,9 @@ def crear_card(parent, width, height):
         highlightthickness=1,
         highlightbackground="#e5e5e5"
     )
-    frame.config(width=width, height=height)
-    frame.pack_propagate(False)
+
+    # --- ALTURA AUTOMÁTICA (FIX) ---
+    frame.config(width=width)
+    frame.pack_propagate(True)
+
     return frame
